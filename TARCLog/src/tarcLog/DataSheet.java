@@ -31,6 +31,10 @@ public class DataSheet {
 		return flights.remove(index);
 	}
 	
+	public void saveSheet(PrintStream output) {
+		
+	}
+	
 	public void printSheet(PrintStream output) {
 		Flight flight;
 		
