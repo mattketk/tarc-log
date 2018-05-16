@@ -13,13 +13,11 @@ public class DataSheet {
 	private static final String IND_0 = "\t";
 	private static final String IND_1 = "\t\t";
 	
-	private DateFormat format;
-	private Date date;
+	private String date;
 	private ArrayList<Flight> flights;
 	
 	public DataSheet() {
-		this.format = new SimpleDateFormat("MM/dd/yyyy");
-		this.date = new Date();
+		this.date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
 		this.flights = new ArrayList<Flight>();
 	}
 	
@@ -32,13 +30,27 @@ public class DataSheet {
 	}
 	
 	public void saveSheet(PrintStream output) {
-		
+		output.println(date);
+		for (int i = 0; i < flights.size(); i++) {
+			flights.get(i).saveFlight(output);
+			output.println();
+		}
+	}
+	
+	public void loadSheet(Scanner cache) {
+		Flight temp;
+		this.date = cache.nextLine();
+		while (!cache.hasNextLine()) {	// TODO: watch out here
+			temp = new Flight();
+			temp.loadFlight(cache);
+			flights.add(temp);
+		}
 	}
 	
 	public void printSheet(PrintStream output) {
 		Flight flight;
 		
-		output.println("Date:\t" + format.format(date));
+		output.println("Date:\t" + date);
 		output.println();
 		
 		for (int i = 0; i < flights.size(); i++) {
