@@ -59,45 +59,45 @@ public class DataSheet {
 			
 			// weather
 			output.println(IND_0 + "Weather:");
-			output.printf(IND_1 + "Temperature (F):\t%d\n", flight.getTemperature());
-			output.printf(IND_1 + "Wind Speed (MPH):\t%d\n", flight.getWindSpeed());
-			output.printf(IND_1 + "Relative Humidity (%):\t%d\n", flight.getHumidity());
+			output.printf(IND_1 + "Temperature (F):\t%.1f\n", flight.getTemperature());
+			output.printf(IND_1 + "Wind Speed (MPH):\t%.1f\n", flight.getWindSpeed());
+			output.printf(IND_1 + "R. Humidity (%%):\t%.1f\n", flight.getHumidity());
 			output.println();
 			
 			// specifications
 			output.println(IND_0 + "Specifications:");
 			output.println(IND_1 + "Payload:\t\"" + flight.getPayload() + "\"");
 			output.println(IND_1 + "Booster:\t\"" + flight.getBooster() + "\"");
-			output.println(IND_1 + "Motor Model:\t" + flight.getMotor());
+			output.println(IND_1 + "Motor:\t" + flight.getMotor());
 			output.println(IND_1 + "Delay (s):\t" + flight.getDelay());
 			output.println(IND_1 + "Parachute:\t" + flight.getParachute());
 			output.println();
 			
 			// masses
 			output.println(IND_0 + "Masses:");
-			output.printf(IND_1 + "Payload (g):\t%d\n", flight.getPayloadMass());
-			output.printf(IND_1 + "Booster (g):\t%d\n", flight.getBoosterMass());
+			output.printf(IND_1 + "Payload (g):\t%.1f\n", flight.getPayloadMass());
+			output.printf(IND_1 + "Booster (g):\t%.1f\n", flight.getBoosterMass());
 			
 			// egg masses
-			output.print(IND_1 + "Eggs (g):\t");
+			output.print(IND_1 + "Eggs (g):\t\t");
 			for (int j = 0; i < flight.getNumEggs() - 1; i++) {
-				output.printf("%d, ", flight.getEggMass(j));
+				output.printf("%.0f, ", flight.getEggMass(j));
 			}
-			output.printf("%d", flight.getEggMass(flight.getNumEggs() - 1));
+			output.printf("%.0f\n", flight.getEggMass(flight.getNumEggs() - 1));
 			
-			output.printf(IND_1 + "Parachute (g):\t%d\n", flight.getParachuteMass());
-			output.printf(IND_1 + "Nomex (g):\t%d\n", flight.getNomexMass());
-			output.printf(IND_1 + "Insulation (g):\t%d\n", flight.getInsulationMass());
-			output.printf(IND_1 + "Ballast (g):\t%d\n", flight.getBallastMass());
-			output.printf(IND_1 + "Casing (g):\t%d\n", flight.getCasingMass());
-			output.printf(IND_1 + "Motor (g):\t%d\n", flight.getMotorMass());
-			output.printf(IND_1 + "Total (g):\t%d\n", flight.getTotalMass());
+			output.printf(IND_1 + "Parachute (g):\t%.1f\n", flight.getParachuteMass());
+			output.printf(IND_1 + "Nomex (g):\t\t%.1f\n", flight.getNomexMass());
+			output.printf(IND_1 + "Insulation (g):\t%.1f\n", flight.getInsulationMass());
+			output.printf(IND_1 + "Ballast (g):\t%.1f\n", flight.getBallastMass());
+			output.printf(IND_1 + "Casing (g):\t\t%.1f\n", flight.getCasingMass());
+			output.printf(IND_1 + "Motor (g):\t\t%.1f\n", flight.getMotorMass());
+			output.printf(IND_1 + "Total (g):\t\t%.1f\n", flight.getTotalMass());
 			output.println();
 			
 			// results
 			output.println(IND_0 + "Results:");
 			output.println(IND_1 + "Altitude (ft):\t" + flight.getAltitude());
-			output.printf(IND_1 + "Time (s):\t%.2f\n", flight.getTime());
+			output.printf(IND_1 + "Time (s):\t\t%.2f\n", flight.getTime());
 			
 			// flight score
 			if (((int) flight.getScore()) != -1)  
