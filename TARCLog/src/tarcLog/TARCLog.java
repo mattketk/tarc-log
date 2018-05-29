@@ -85,6 +85,7 @@ public class TARCLog {
 		return choice;
 	}
 	
+	/*
 	private static double inputNumberData(Scanner console) {
 		String input = "";
 		double n = 0.0;
@@ -97,6 +98,7 @@ public class TARCLog {
 		}
 		return n;
 	}
+	*/
 	
 	private static boolean checkKeyword(String input) {
 		// keywords; '/' is appended before
@@ -105,43 +107,31 @@ public class TARCLog {
 		// finish, f
 		// save, s
 		// help, h
-		
-		
-		return true;
+		boolean isKeyword = input.equalsIgnoreCase("pass") || input.equalsIgnoreCase("p");
+		isKeyword = isKeyword || (input.equalsIgnoreCase("back") || input.equalsIgnoreCase("b"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("finish") || input.equalsIgnoreCase("f"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("save") || input.equalsIgnoreCase("s"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("help") || input.equalsIgnoreCase("h"));
+		return isKeyword;
 	}
 	
 	private static int evaluateInput(String input) {
 		int result = -1;
 		// result codes
 		// 0: is keyword
-		// 1: is double
-		// 2: is int
-		// 3: is string
+		// 1: is number
+		// 2: is string
 		
 		if (checkKeyword(input))
 			result = 0;
-		else if (checkForNumber(input)) {
+		else if (checkForNumber(input))
 			result = 1;
-			if (checkForInteger(input))
-				result = 2;
-		} else 
-			result = 3;
+		else 
+			result = 2;
 			
 		return result;
 	}
 	/*
-	private static double inputDataNum(Flight f, String input) {
-		
-	}
-	
-	private static int inputDataInt(Flight f, String input) {
-		
-	}
-	
-	private static String inputDataString(Flight f, String input) {
-		
-	}
-	*/
 	private static void inputDataPhase(Scanner console, Flight f) {
 		String input = "";
 		System.out.print("Temperature (F): ");
@@ -150,6 +140,36 @@ public class TARCLog {
 		System.out.print("Booster: ");
 		System.out.print("Motor: ");
 		System.out.print("Motor Delay (s): ");
+		System.out.print("Parachute: ");
+		System.out.print("Payload Mass (g): ");
+		System.out.print("Booster Mass (g): ");
+		System.out.print("Egg Amount: ");
+		// egg stuff
+		System.out.print("Parachute Mass (g): ");
+		System.out.print("Nomex (g): ");
+		System.out.print("Insulation (g): ");
+		System.out.print("Ballast (g): ");
+		System.out.print("Casing (g): ");
+		System.out.print("Motor Mass (g): ");
+		System.out.print("Altitude (ft): ");
+		System.out.print("Time (s): ");
 		
+	}
+	*/
+	
+	private static void inputDataPhase(Scanner console, Flight f, int phase) {
+		String input = "";
+		switch (phase) {
+			case 0:
+				while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
+					
+				}
+				break;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:	
+		}
 	}
 }
