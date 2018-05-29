@@ -439,6 +439,7 @@ public class Flight {
 		output.print(casing + "\t");
 		output.print(motorMass + "\t");
 		output.print(altitude + "\t");
+		output.print(time + "\t");
 		
 		for (int i = 0; i < modifications.size(); i++) {
 			output.print(modifications.get(i) + "\t");
@@ -461,6 +462,7 @@ public class Flight {
 		output.print("_endconsiderations");
 	}
 	
+	/*
 	public void loadFlight(Scanner cache) {
 		String comparer = "";
 		ArrayList<Double> eggTemp = new ArrayList<Double>();
@@ -472,7 +474,7 @@ public class Flight {
 		payload = cache.next();
 		booster = cache.next();
 		motor = cache.next();
-		motorDelay = Integer.parseInt(cache.next());
+		motorDelay = (int) (Double.parseDouble(cache.next()));
 		parachute = cache.next();
 		payloadMass = Double.parseDouble(cache.next());
 		boosterMass = Double.parseDouble(cache.next());
@@ -480,10 +482,11 @@ public class Flight {
 		// eggs
 		while (!comparer.equals("_endeggs")) {
 			comparer = cache.next();
-			if (!comparer.equals("_endeggs"))
-			eggTemp.add(Double.parseDouble(comparer));
+			if (!comparer.equals("_endeggs")) {
+				eggTemp.add(Double.parseDouble(comparer));
+			}
 		}
-		eggs = new double[eggTemp.size()];
+		eggs = new double[eggTemp.size()]; 
 		for (int i = 0; i < eggTemp.size(); i++) {
 			eggs[i] = eggTemp.get(i);
 		}
@@ -520,8 +523,76 @@ public class Flight {
 			if (!comparer.equals("_endconsiderations"))
 				considerations.add(comparer);
 		}
+	} 
+	*/
+	
+	public void loadFlight(Scanner cache) {
+		int counter = 0;
+		String[] data = cache.nextLine().split("\t");
+		ArrayList<Double> eggTemp = new ArrayList<Double>();
+		
+		temperature = Double.parseDouble(data[counter]);
+		counter++;
+		windSpeed = Double.parseDouble(data[counter]);
+		counter++;
+		humidity = Double.parseDouble(data[counter]);
+		counter++;
+		payload = data[counter];
+		counter++;
+		booster = data[counter];
+		counter++;
+		motor = data[counter];
+		counter++;
+		motorDelay = (int) (Double.parseDouble(data[counter]));
+		counter++;
+		parachute = data[counter];
+		counter++;
+		
+		while (!data[counter].equals("_endeggs")) {
+			eggTemp.add(Double.parseDouble(data[counter]));
+			counter++;
+		}
+		eggs = new double[eggTemp.size()];
+		for (int i = 0; i < eggTemp.size(); i++) {
+			eggs[i] = eggTemp.get(i);
+		}
+		counter++;
+		
+		parachuteMass = Double.parseDouble(data[counter]);
+		counter++;
+		nomex = Double.parseDouble(data[counter]);
+		counter++;
+		insulation = Double.parseDouble(data[counter]);
+		counter++;
+		ballast = Double.parseDouble(data[counter]);
+		counter++;
+		casing = Double.parseDouble(data[counter]);
+		counter++;
+		motorMass = Double.parseDouble(data[counter]);
+		counter++;
+		altitude = Integer.parseInt(data[counter]);
+		counter++;
+		time = Double.parseDouble(data[counter]); // SEE saveFlight method
+		counter++;
+		
+		while (!data[counter].equals("_endmodifications")) {
+			modifications.add(data[counter]);
+			counter++;
+		}
+		while (!data[counter].equals("_enddamages")) {
+			damages.add(data[counter]);
+			counter++;
+		}
+		while (!data[counter].equals("_endcharacteristics")) {
+			characteristics.add(data[counter]);
+			counter++;
+		}
+		while (!data[counter].equals("_endconsiderations")) {
+			considerations.add(data[counter]);
+			counter++;
+		}
 	}
-
+	
 	public boolean isComplete() {
 		return (temperature > -460 && windSpeed > -1 && humidity > -1 && !payload.trim().equals("")
 				&& !booster.trim().equals("") && !motor.trim().equals("") && motorDelay > -1

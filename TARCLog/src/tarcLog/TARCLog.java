@@ -2,13 +2,22 @@ package tarcLog;
 
 import java.util.*;
 import java.io.*;
+import java.io.*;
 
 public class TARCLog {
-	public static void main(String[] args) {
+	public static final String DATASHEETS_DIR = "cache/datasheets/";
+	public static final String SAVEFILES_DIR = "cache/savefiles/";
+	public static final String ERROR_MSG_0 = "Incorrect input. Please try again.";
+
+	
+	public static void main(String[] args) throws FileNotFoundException {
 		Scanner console = new Scanner(System.in);
 		File inputCacheFile;
 		File outputCacheFile;
 		File outputDataSheet;
+		
+		DataSheet sheet;
+		Flight flight;
 		
 		System.out.println("Welcome to TARC Log. Start off with these commands:");
 		System.out.println();
@@ -17,17 +26,25 @@ public class TARCLog {
 		System.out.println("\t2:\tDelete Data Sheet");
 		System.out.println("\t3:\tAnalyze Data Sheet (Not yet Implemented)"); // WIP
 		
+		
 		switch(numberChoice(console, 3)) {
 			case 0:
+				sheet = new DataSheet();
+				flight = new Flight();
 				
+				// prompt user for input data
+				// save flight in sheet
+				// save 
 				break;
 			case 1:
+				
 				break;
 			case 2:
 				break;
 			case 3:
 				break;
 		}
+		
 		
 		console.close();
 	}
@@ -51,32 +68,105 @@ public class TARCLog {
 	}
 	
 	private static int numberChoice(Scanner console, int maxOptionNum) {
-		String input;
+		String input = "";
 		int choice = -1;
-		do {
+		while (choice < 0 || choice > maxOptionNum) {
 			input = console.nextLine();
 			if (checkForInteger(input)) {
 				choice = Integer.parseInt(input);
-				if (choice >= 0 && choice <= maxOptionNum)
-					return choice;
+				if (choice < 0 || choice > maxOptionNum) {
+					System.out.println(ERROR_MSG_0);
+					choice = -1;
+				}
 			} else {
-				System.out.println("Incorrect input. Please try again.");
+				System.out.println(ERROR_MSG_0);
 			}
-		} while (!checkForInteger(input));
-		return -1;
+		}
+		return choice;
+	}
+	
+	private static double inputNumberData(Scanner console) {
+		String input = "";
+		double n = 0.0;
+		while (!checkForNumber(input)) {
+			input = console.nextLine();
+			if (checkForNumber(input))
+				n = Double.parseDouble(input);
+			else
+				System.out.println(ERROR_MSG_0);
+		}
+		return n;
 	}
 	
 	private static boolean checkKeyword(String input) {
-		// keywords
+		// keywords; '/' is appended before
 		// pass, p
 		// back, b
 		// finish, f
 		// save, s
 		// help, h
+		
+		
 		return true;
 	}
 	
-	private static void inputDataPhase(Scanner console) {
+	private static int evaluateInput(String input) {
+		int result = -1;
+		// result codes
+		// 0: is keyword
+		// 1: is double
+		// 2: is int
+		// 3: is string
 		
+		if (checkKeyword(input))
+			result = 0;
+		else if (checkForNumber(input)) {
+			result = 1;
+			if (checkForInteger(input))
+				result = 2;
+		} else 
+			result = 3;
+			
+		return result;
+	}
+	/*
+	private static double inputDataNum(Flight f, String input) {
+		
+	}
+	
+	private static int inputDataInt(Flight f, String input) {
+		
+	}
+	
+	private static String inputDataString(Flight f, String input) {
+		
+	}
+	*/
+	private static void inputDataPhase(Scanner console, Flight f) {
+		String input = "";
+		System.out.print("Temperature (F): ");
+		input = console.nextLine();
+		while (evaluateInput(input) == )
+		System.out.print("Wind Speed (MPH):");
+		input = console.nextLine();
+		switch (evaluateInput(input)) {
+			case 1:
+				f.setWindSpeed(Double.parseDouble(input));
+				break; 
+		}
+		System.out.print("Humidity (%):");
+		input = console.nextLine();
+		switch (evaluateInput(input)) {
+			case 3:
+				f.setHumidity(Double.parseDouble(input));
+				break; 
+		}
+		System.out.print("Payload:");
+		input = console.nextLine();
+		switch (evaluateInput(input)) {
+			case 1:
+				f.setPayload(input);
+				break; 
+		}
 	}
 }
