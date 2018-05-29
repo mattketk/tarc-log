@@ -145,28 +145,11 @@ public class TARCLog {
 	private static void inputDataPhase(Scanner console, Flight f) {
 		String input = "";
 		System.out.print("Temperature (F): ");
-		input = console.nextLine();
-		while (evaluateInput(input) == )
-		System.out.print("Wind Speed (MPH):");
-		input = console.nextLine();
-		switch (evaluateInput(input)) {
-			case 1:
-				f.setWindSpeed(Double.parseDouble(input));
-				break; 
-		}
-		System.out.print("Humidity (%):");
-		input = console.nextLine();
-		switch (evaluateInput(input)) {
-			case 3:
-				f.setHumidity(Double.parseDouble(input));
-				break; 
-		}
-		System.out.print("Payload:");
-		input = console.nextLine();
-		switch (evaluateInput(input)) {
-			case 1:
-				f.setPayload(input);
-				break; 
-		}
+		System.out.print("Humidity (%): ");
+		System.out.print("Payload: ");
+		System.out.print("Booster: ");
+		System.out.print("Motor: ");
+		System.out.print("Motor Delay (s): ");
+		
 	}
 }
