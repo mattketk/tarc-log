@@ -5,50 +5,48 @@ import java.io.*;
 import java.io.*;
 
 public class TARCLog {
-	public static final String DATASHEETS_DIR = "cache/datasheets/";
-	public static final String SAVEFILES_DIR = "cache/savefiles/";
-	public static final String ERROR_MSG_0 = "Incorrect input. Please try again.";
+	private static final String DATASHEETS_DIR = "cache/datasheets/";
+	private static final String SAVEFILES_DIR = "cache/savefiles/";
+	private static final String ERROR_MSG_0 = "Incorrect input. Please try again.";
+	private static final String ERROR_MSG_1 = "Invalid keyword. Please try again.";
 
-	
 	public static void main(String[] args) throws FileNotFoundException {
 		Scanner console = new Scanner(System.in);
 		File inputCacheFile;
 		File outputCacheFile;
 		File outputDataSheet;
-		
+
 		DataSheet sheet;
 		Flight flight;
-		
+
 		System.out.println("Welcome to TARC Log. Start off with these commands:");
 		System.out.println();
 		System.out.println("\t0:\tNew Data Sheet");
 		System.out.println("\t1:\tEdit Data Sheet");
 		System.out.println("\t2:\tDelete Data Sheet");
 		System.out.println("\t3:\tAnalyze Data Sheet (Not yet Implemented)"); // WIP
-		
-		
-		switch(numberChoice(console, 3)) {
-			case 0:
-				sheet = new DataSheet();
-				flight = new Flight();
-				
-				// prompt user for input data
-				// save flight in sheet
-				// save 
-				break;
-			case 1:
-				
-				break;
-			case 2:
-				break;
-			case 3:
-				break;
+
+		switch (numberChoice(console, 3)) {
+		case 0:
+			sheet = new DataSheet();
+			flight = new Flight();
+
+			// prompt user for input data
+			// save flight in sheet
+			// save
+			break;
+		case 1:
+
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
 		}
-		
-		
+
 		console.close();
 	}
-	
+
 	private static boolean checkForNumber(String input) {
 		try {
 			Double.parseDouble(input);
@@ -57,7 +55,7 @@ public class TARCLog {
 			return false;
 		}
 	}
-	
+
 	private static boolean checkForInteger(String input) {
 		try {
 			Integer.parseInt(input);
@@ -66,7 +64,7 @@ public class TARCLog {
 			return false;
 		}
 	}
-	
+
 	private static int numberChoice(Scanner console, int maxOptionNum) {
 		String input = "";
 		int choice = -1;
@@ -84,22 +82,33 @@ public class TARCLog {
 		}
 		return choice;
 	}
-	
-	/*
-	private static double inputNumberData(Scanner console) {
+
+	private static boolean yesNoChoice(Scanner console) {
 		String input = "";
-		double n = 0.0;
-		while (!checkForNumber(input)) {
+		boolean isYes = false;
+		while (!(input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("y") || input.equalsIgnoreCase("no")
+				|| input.equalsIgnoreCase("n"))) {
 			input = console.nextLine();
-			if (checkForNumber(input))
-				n = Double.parseDouble(input);
-			else
+			if (!(input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("y") || input.equalsIgnoreCase("no")
+					|| input.equalsIgnoreCase("n"))) {
 				System.out.println(ERROR_MSG_0);
+			}
 		}
-		return n;
+		if (input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("y")) {
+			isYes = true;
+		} else if (input.equalsIgnoreCase("no") || input.equalsIgnoreCase("n")) {
+			isYes = false;
+		}
+		return isYes;
 	}
-	*/
-	
+
+	/*
+	 * private static double inputNumberData(Scanner console) { String input = "";
+	 * double n = 0.0; while (!checkForNumber(input)) { input = console.nextLine();
+	 * if (checkForNumber(input)) n = Double.parseDouble(input); else
+	 * System.out.println(ERROR_MSG_0); } return n; }
+	 */
+
 	private static boolean checkKeyword(String input) {
 		// keywords; '/' is appended before
 		// pass, p
@@ -107,69 +116,177 @@ public class TARCLog {
 		// finish, f
 		// save, s
 		// help, h
-		boolean isKeyword = input.equalsIgnoreCase("pass") || input.equalsIgnoreCase("p");
-		isKeyword = isKeyword || (input.equalsIgnoreCase("back") || input.equalsIgnoreCase("b"));
-		isKeyword = isKeyword || (input.equalsIgnoreCase("finish") || input.equalsIgnoreCase("f"));
-		isKeyword = isKeyword || (input.equalsIgnoreCase("save") || input.equalsIgnoreCase("s"));
-		isKeyword = isKeyword || (input.equalsIgnoreCase("help") || input.equalsIgnoreCase("h"));
+		boolean isKeyword = input.equalsIgnoreCase("/pass") || input.equalsIgnoreCase("/p");
+		isKeyword = isKeyword || (input.equalsIgnoreCase("/back") || input.equalsIgnoreCase("/b"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("/finish") || input.equalsIgnoreCase("/f"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("/save") || input.equalsIgnoreCase("/s"));
+		isKeyword = isKeyword || (input.equalsIgnoreCase("/help") || input.equalsIgnoreCase("/h"));
 		return isKeyword;
 	}
-	
+
+	private static int evaluateKeyword(String input) {
+		int result = -1;
+		if (input.equalsIgnoreCase("/pass") || input.equalsIgnoreCase("/p"))
+			result = 0;
+		else if (input.equalsIgnoreCase("/back") || input.equalsIgnoreCase("/b"))
+			result = 1;
+		else if (input.equalsIgnoreCase("/save") || input.equalsIgnoreCase("/s"))
+			result = 2;
+		else if (input.equalsIgnoreCase("/finish") || input.equalsIgnoreCase("/f"))
+			result = 3;
+		else if (input.equalsIgnoreCase("/help") || input.equalsIgnoreCase("/h"))
+			result = 4;
+		return result;
+	}
+
 	private static int evaluateInput(String input) {
 		int result = -1;
 		// result codes
 		// 0: is keyword
 		// 1: is number
 		// 2: is string
-		
+
 		if (checkKeyword(input))
 			result = 0;
 		else if (checkForNumber(input))
 			result = 1;
-		else 
+		else
 			result = 2;
-			
+
 		return result;
 	}
 	/*
-	private static void inputDataPhase(Scanner console, Flight f) {
-		String input = "";
-		System.out.print("Temperature (F): ");
-		System.out.print("Humidity (%): ");
-		System.out.print("Payload: ");
-		System.out.print("Booster: ");
-		System.out.print("Motor: ");
-		System.out.print("Motor Delay (s): ");
-		System.out.print("Parachute: ");
-		System.out.print("Payload Mass (g): ");
-		System.out.print("Booster Mass (g): ");
-		System.out.print("Egg Amount: ");
-		// egg stuff
-		System.out.print("Parachute Mass (g): ");
-		System.out.print("Nomex (g): ");
-		System.out.print("Insulation (g): ");
-		System.out.print("Ballast (g): ");
-		System.out.print("Casing (g): ");
-		System.out.print("Motor Mass (g): ");
-		System.out.print("Altitude (ft): ");
-		System.out.print("Time (s): ");
-		
-	}
-	*/
+	 * private static void inputDataPhase(Scanner console, Flight f) { String input
+	 * = ""; System.out.print("Temperature (F): ");
+	 * System.out.print("Humidity (%): "); System.out.print("Payload: ");
+	 * System.out.print("Booster: "); System.out.print("Motor: ");
+	 * System.out.print("Motor Delay (s): "); System.out.print("Parachute: ");
+	 * System.out.print("Payload Mass (g): ");
+	 * System.out.print("Booster Mass (g): "); System.out.print("Egg Amount: "); //
+	 * egg stuff System.out.print("Parachute Mass (g): ");
+	 * System.out.print("Nomex (g): "); System.out.print("Insulation (g): ");
+	 * System.out.print("Ballast (g): "); System.out.print("Casing (g): ");
+	 * System.out.print("Motor Mass (g): "); System.out.print("Altitude (ft): ");
+	 * System.out.print("Time (s): ");
+	 * 
+	 * }
+	 */
 	
-	private static void inputDataPhase(Scanner console, Flight f, int phase) {
+	private static void keywordPhase_start(Scanner console, Flight f, PrintStream output, int phase, String input) {
+		if (evaluateKeyword(input) == 0)
+			inputDataPhase(console, f, output, phase + 1);
+		else if (evaluateKeyword(input) == 1) {
+			System.out.println(ERROR_MSG_1);
+			inputDataPhase(console, f, output, phase);
+		} else if (evaluateKeyword(input) == 2) {
+			f.saveFlight(output);
+			inputDataPhase(console, f, output, phase);
+		} else if (evaluateKeyword(input) == 3) {
+			System.out.print("Do you want to save?: (yes, y/no, n)");
+			if (yesNoChoice(console)) {
+				System.out.println("Saving flight...");
+				f.saveFlight(output);
+				System.out.print("Flight saved. ");
+				inputDataPhase(console, f, output, -1);
+			}
+			System.out.println("Exiting...");
+		} else if (evaluateKeyword(input) == 4) {
+			// Implement help method
+			inputDataPhase(console, f, output, phase);
+		}
+	}
+	
+	private static void keywordPhase(Scanner console, Flight f, PrintStream output, int phase, String input) {
+		if (evaluateKeyword(input) == 0)
+			inputDataPhase(console, f, output, phase + 1);
+		else if (evaluateKeyword(input) == 1) {
+			inputDataPhase(console, f, output, phase - 1);
+		} else if (evaluateKeyword(input) == 2) {
+			f.saveFlight(output);
+			inputDataPhase(console, f, output, phase);
+		} else if (evaluateKeyword(input) == 3) {
+			System.out.print("Do you want to save?: (yes, y/no, n)");
+			if (yesNoChoice(console)) {
+				System.out.println("Saving flight...");
+				f.saveFlight(output);
+				System.out.print("Flight saved. ");
+				inputDataPhase(console, f, output, -1);
+			}
+			System.out.println("Exiting...");
+		} else if (evaluateKeyword(input) == 4) {
+			// Implement help method
+			inputDataPhase(console, f, output, phase);
+		}
+	}
+	
+	private static void keywordPhase_end(Scanner console, Flight f, PrintStream output, int phase, String input) {
+		if (evaluateKeyword(input) == 0) {
+			System.out.println(ERROR_MSG_1);
+			inputDataPhase(console, f, output, phase);
+		} else if (evaluateKeyword(input) == 1) {
+			inputDataPhase(console, f, output, phase - 1);
+		} else if (evaluateKeyword(input) == 2) {
+			f.saveFlight(output);
+			inputDataPhase(console, f, output, phase);
+		} else if (evaluateKeyword(input) == 3) {
+			System.out.print("Do you want to save?: (yes, y/no, n)");
+			if (yesNoChoice(console)) {
+				System.out.println("Saving flight...");
+				f.saveFlight(output);
+				System.out.print("Flight saved. ");
+				inputDataPhase(console, f, output, -1);
+			}
+			System.out.println("Exiting...");
+		} else if (evaluateKeyword(input) == 4) {
+			// Implement help method
+			inputDataPhase(console, f, output, phase);
+		}
+	}
+
+	private static void inputDataPhase(Scanner console, Flight f, PrintStream output, int phase) {
 		String input = "";
 		switch (phase) {
-			case 0:
-				while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
-					
-				}
-				break;
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:	
+		case 0:
+			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
+				System.out.print("Temperature (F): ");
+				input = console.nextLine();
+			}
+			if (evaluateInput(input) == 0) {
+				keywordPhase_start(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setTemperature(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 1:
+			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
+				System.out.print("Wind Speed (MPH): ");
+				input = console.nextLine();
+			}
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setWindSpeed(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 2:
+			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
+				System.out.print("Humidity (%): ");
+				input = console.nextLine();
+			}
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setHumidity(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 3:
+		case 4:
+		case 5:
+		default:
+			break;
 		}
 	}
 }
