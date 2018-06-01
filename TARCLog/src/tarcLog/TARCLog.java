@@ -16,6 +16,9 @@ public class TARCLog {
 		File outputCacheFile;
 		File outputDataSheet;
 
+		PrintStream dataSheet;
+		PrintStream saveFile;
+		
 		DataSheet sheet;
 		Flight flight;
 
@@ -30,10 +33,12 @@ public class TARCLog {
 		case 0:
 			sheet = new DataSheet();
 			flight = new Flight();
-
+			outputCacheFile = new File(SAVEFILES_DIR + "save_");
+			
 			// prompt user for input data
 			// save flight in sheet
 			// save
+			// inputDataPhase(console, flight );
 			break;
 		case 1:
 
@@ -243,14 +248,31 @@ public class TARCLog {
 		}
 	}
 
+	private static String inputDataLoopNumber(Scanner console, String prompt) {
+		String input = "";
+		while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
+			System.out.print("Temperature (F): ");
+			input = console.nextLine();
+		}
+		
+		return input;
+	}
+	
+	private static String inputDataLoopString(Scanner console, String prompt) {
+		String input = "";
+		while (evaluateInput(input) != 0 || evaluateInput(input) != 2) {
+			System.out.print(prompt);
+			input = console.nextLine();
+		}
+		
+		return input;
+	}
+	
 	private static void inputDataPhase(Scanner console, Flight f, PrintStream output, int phase) {
 		String input = "";
 		switch (phase) {
 		case 0:
-			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
-				System.out.print("Temperature (F): ");
-				input = console.nextLine();
-			}
+			input = inputDataLoopNumber(console, "Temperature (F): ");
 			if (evaluateInput(input) == 0) {
 				keywordPhase_start(console, f, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
@@ -259,10 +281,7 @@ public class TARCLog {
 			}
 			break;
 		case 1:
-			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
-				System.out.print("Wind Speed (MPH): ");
-				input = console.nextLine();
-			}
+			input = inputDataLoopNumber(console, "Wind Speed (MPH): ");
 			if (evaluateInput(input) == 0) {
 				keywordPhase(console, f, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
@@ -271,10 +290,7 @@ public class TARCLog {
 			}
 			break;
 		case 2:
-			while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
-				System.out.print("Humidity (%): ");
-				input = console.nextLine();
-			}
+			input = inputDataLoopNumber(console, "Humidity (%): ");
 			if (evaluateInput(input) == 0) {
 				keywordPhase(console, f, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
@@ -283,8 +299,77 @@ public class TARCLog {
 			}
 			break;
 		case 3:
+			input = inputDataLoopString(console, "Payload Name: ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 2) {
+				f.setPayload(input);
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
 		case 4:
+			input = inputDataLoopString(console, "Booster Name: ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 2) {
+				f.setBooster(input);
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
 		case 5:
+			input = inputDataLoopString(console, "Motor Name: ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 2) {
+				f.setMotor(input);
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 6:
+			input = inputDataLoopNumber(console, "Motor Delay (s): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setDelay((int) Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 7:
+			input = inputDataLoopString(console, "Parachute Name: ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 2) {
+				f.setParachute(input);
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 8:
+			input = inputDataLoopNumber(console, "Payload Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setPayloadMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 9:
+			input = inputDataLoopNumber(console, "Booster Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setBoosterMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 10:
+			input = inputDataLoopNumber(console, "Booster Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setBoosterMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
 		default:
 			break;
 		}
