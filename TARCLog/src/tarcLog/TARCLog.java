@@ -2,6 +2,7 @@ package tarcLog;
 
 import java.util.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.io.*;
 
 public class TARCLog {
@@ -18,7 +19,7 @@ public class TARCLog {
 
 		PrintStream dataSheet;
 		PrintStream saveFile;
-		
+
 		DataSheet sheet;
 		Flight flight;
 
@@ -33,12 +34,14 @@ public class TARCLog {
 		case 0:
 			sheet = new DataSheet();
 			flight = new Flight();
-			outputCacheFile = new File(SAVEFILES_DIR + "save_");
-			
+			outputCacheFile = new File(SAVEFILES_DIR + "save_" + new SimpleDateFormat("MM.dd.yyyy").format(new Date()));
+			saveFile = new PrintStream(outputCacheFile);
 			// prompt user for input data
 			// save flight in sheet
 			// save
 			// inputDataPhase(console, flight );
+			
+			inputDataPhase(console, flight, saveFile);
 			break;
 		case 1:
 
@@ -160,23 +163,7 @@ public class TARCLog {
 
 		return result;
 	}
-	/*
-	 * private static void inputDataPhase(Scanner console, Flight f) { String input
-	 * = ""; System.out.print("Temperature (F): ");
-	 * System.out.print("Humidity (%): "); System.out.print("Payload: ");
-	 * System.out.print("Booster: "); System.out.print("Motor: ");
-	 * System.out.print("Motor Delay (s): "); System.out.print("Parachute: ");
-	 * System.out.print("Payload Mass (g): ");
-	 * System.out.print("Booster Mass (g): "); System.out.print("Egg Amount: "); //
-	 * egg stuff System.out.print("Parachute Mass (g): ");
-	 * System.out.print("Nomex (g): "); System.out.print("Insulation (g): ");
-	 * System.out.print("Ballast (g): "); System.out.print("Casing (g): ");
-	 * System.out.print("Motor Mass (g): "); System.out.print("Altitude (ft): ");
-	 * System.out.print("Time (s): ");
-	 * 
-	 * }
-	 */
-	
+
 	private static void keywordPhase_start(Scanner console, Flight f, PrintStream output, int phase, String input) {
 		if (evaluateKeyword(input) == 0)
 			inputDataPhase(console, f, output, phase + 1);
@@ -184,7 +171,9 @@ public class TARCLog {
 			System.out.println(ERROR_MSG_1);
 			inputDataPhase(console, f, output, phase);
 		} else if (evaluateKeyword(input) == 2) {
+			System.out.println("Saving flight...");
 			f.saveFlight(output);
+			System.out.print("Flight saved. ");
 			inputDataPhase(console, f, output, phase);
 		} else if (evaluateKeyword(input) == 3) {
 			System.out.print("Do you want to save?: (yes, y/no, n)");
@@ -200,7 +189,7 @@ public class TARCLog {
 			inputDataPhase(console, f, output, phase);
 		}
 	}
-	
+
 	private static void keywordPhase(Scanner console, Flight f, PrintStream output, int phase, String input) {
 		if (evaluateKeyword(input) == 0)
 			inputDataPhase(console, f, output, phase + 1);
@@ -223,7 +212,7 @@ public class TARCLog {
 			inputDataPhase(console, f, output, phase);
 		}
 	}
-	
+
 	private static void keywordPhase_end(Scanner console, Flight f, PrintStream output, int phase, String input) {
 		if (evaluateKeyword(input) == 0) {
 			System.out.println(ERROR_MSG_1);
@@ -250,26 +239,29 @@ public class TARCLog {
 
 	private static String inputDataLoopNumber(Scanner console, String prompt) {
 		String input = "";
-		while (evaluateInput(input) != 0 || evaluateInput(input) != 1) {
-			System.out.print("Temperature (F): ");
+		while (!(evaluateInput(input) == 0 || evaluateInput(input) == 1)) {
+			System.out.print(prompt);
 			input = console.nextLine();
+			// System.out.println(evaluateInput(input));
 		}
-		
+
 		return input;
 	}
-	
+
 	private static String inputDataLoopString(Scanner console, String prompt) {
-		String input = "";
-		while (evaluateInput(input) != 0 || evaluateInput(input) != 2) {
+		String input = "0.0";
+		while (!(evaluateInput(input) == 0 || evaluateInput(input) == 2)) {
 			System.out.print(prompt);
 			input = console.nextLine();
 		}
-		
+
 		return input;
 	}
-	
+
 	private static void inputDataPhase(Scanner console, Flight f, PrintStream output, int phase) {
 		String input = "";
+		String[] commandParams;
+		boolean isDone = false;
 		switch (phase) {
 		case 0:
 			input = inputDataLoopNumber(console, "Temperature (F): ");
@@ -295,10 +287,12 @@ public class TARCLog {
 				keywordPhase(console, f, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
 				f.setHumidity(Double.parseDouble(input));
+				System.out.println(phase + 1);
 				inputDataPhase(console, f, output, phase + 1);
 			}
 			break;
 		case 3:
+			System.out.println(phase);
 			input = inputDataLoopString(console, "Payload Name: ");
 			if (evaluateInput(input) == 0) {
 				keywordPhase(console, f, output, phase, input);
@@ -326,6 +320,7 @@ public class TARCLog {
 			}
 			break;
 		case 6:
+			System.out.println(phase);
 			input = inputDataLoopNumber(console, "Motor Delay (s): ");
 			if (evaluateInput(input) == 0) {
 				keywordPhase(console, f, output, phase, input);
@@ -370,8 +365,256 @@ public class TARCLog {
 				inputDataPhase(console, f, output, phase + 1);
 			}
 			break;
+		case 11:
+			String[] eggMasses;
+			boolean isValid = false;
+			while (!isValid) {
+				System.out.print("Enter egg masses (separated by space): ");
+				eggMasses = console.nextLine().split(" ");
+				isValid = true;
+				if (eggMasses.length < 1)
+					isValid = false;
+				else {
+					for (int i = 0; i < eggMasses.length; i++) {
+						if (!checkForNumber(eggMasses[i].trim())) {
+							isValid = false;
+						}
+					}
+				}
+				if (isValid) {
+					f.setEggAmount(eggMasses.length);
+					for (int i = 0; i < eggMasses.length; i++) {
+						f.setEggMass(i, Double.parseDouble(eggMasses[i]));
+					}
+				} else {
+					System.out.println(ERROR_MSG_0);
+				}
+			}
+			break;
+		case 12:
+			input = inputDataLoopNumber(console, "Parachute Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setParachuteMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 13:
+			input = inputDataLoopNumber(console, "Nomex Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setNomexMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 14:
+			input = inputDataLoopNumber(console, "Insulation Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setInsulationMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 15:
+			input = inputDataLoopNumber(console, "Casing Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setCasingMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 16:
+			input = inputDataLoopNumber(console, "Motor Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setMotorMass(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 17:
+			input = inputDataLoopNumber(console, "Altitude (ft): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setAltitude((int) Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 18:
+			input = inputDataLoopNumber(console, "Time (s): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				f.setTime(Double.parseDouble(input));
+				inputDataPhase(console, f, output, phase + 1);
+			}
+			break;
+		case 19:
+			// keywords:
+			// /del, /d
+			System.out.println("Enter Modification notes: ");
+			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+			
+			while (!isDone) {
+				input = console.nextLine().trim();
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (f.getNumModifications() > 0) {
+						for (int i = 0; i < f.getNumModifications(); i++) {
+							System.out.println(i + ": " + f.getModification(i));
+						}
+					} else {
+						System.out.println(ERROR_MSG_1);
+					}
+				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+					commandParams = input.split(" ");
+					if (commandParams.length > 1) {
+						if (checkForInteger(commandParams[1])) {
+							if (Integer.parseInt(commandParams[1]) < f.getNumModifications()) {
+								f.removeModification(Integer.parseInt(commandParams[1]));
+							} else {
+								 System.out.println(ERROR_MSG_0);
+							}
+						} else {
+							System.out.println(ERROR_MSG_0);
+						}
+					} else {
+						System.out.println(ERROR_MSG_0);
+					}
+				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					inputDataPhase(console, f, output, phase + 1);
+				} else {
+					f.addModification(input);
+				}
+			}
+			break;
+		case 20:
+			System.out.println("Enter Damage notes: ");
+			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+			
+			while (!isDone) {
+				input = console.nextLine().trim();
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (f.getNumDamages() > 0) {
+						for (int i = 0; i < f.getNumDamages(); i++) {
+							System.out.println(i + ": " + f.getDamage(i));
+						}
+					} else {
+						System.out.println(ERROR_MSG_1);
+					}
+				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+					commandParams = input.split(" ");
+					if (commandParams.length > 1) {
+						if (checkForInteger(commandParams[1])) {
+							if (Integer.parseInt(commandParams[1]) < f.getNumDamages()) {
+								f.removeDamage(Integer.parseInt(commandParams[1]));
+							} else {
+								 System.out.println(ERROR_MSG_0);
+							}
+						} else {
+							System.out.println(ERROR_MSG_0);
+						}
+					} else {
+						System.out.println(ERROR_MSG_0);
+					}
+				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					inputDataPhase(console, f, output, phase + 1);
+				} else {
+					f.addDamage(input);
+				}
+			}
+			break;
+		case 21:
+			System.out.println("Enter Characteristic notes: ");
+			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+			
+			while (!isDone) {
+				input = console.nextLine().trim();
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, f, output, phase, input);
+			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (f.getNumCharacteristics() > 0) {
+						for (int i = 0; i < f.getNumCharacteristics(); i++) {
+							System.out.println(i + ": " + f.getCharacteristic(i));
+						}
+					} else {
+						System.out.println(ERROR_MSG_1);
+					}
+				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+					commandParams = input.split(" ");
+					if (commandParams.length > 1) {
+						if (checkForInteger(commandParams[1])) {
+							if (Integer.parseInt(commandParams[1]) < f.getNumCharacteristics()) {
+								f.removeCharacteristic(Integer.parseInt(commandParams[1]));
+							} else {
+								 System.out.println(ERROR_MSG_0);
+							}
+						} else {
+							System.out.println(ERROR_MSG_0);
+						}
+					} else {
+						System.out.println(ERROR_MSG_0);
+					}
+				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					inputDataPhase(console, f, output, phase + 1);
+				} else {
+					f.addCharacteristic(input);
+				}
+			}
+			break;
+		case 22:
+			System.out.println("Enter Consideration notes: ");
+			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+			
+			while (!isDone) {
+				input = console.nextLine().trim();
+			if (evaluateInput(input) == 0) {
+				keywordPhase_end(console, f, output, phase, input);
+			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (f.getNumConsiderations() > 0) {
+						for (int i = 0; i < f.getNumConsiderations(); i++) {
+							System.out.println(i + ": " + f.getConsideration(i));
+						}
+					} else {
+						System.out.println(ERROR_MSG_1);
+					}
+				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+					commandParams = input.split(" ");
+					if (commandParams.length > 1) {
+						if (checkForInteger(commandParams[1])) {
+							if (Integer.parseInt(commandParams[1]) < f.getNumConsiderations()) {
+								f.removeConsideration(Integer.parseInt(commandParams[1]));
+							} else {
+								 System.out.println(ERROR_MSG_0);
+							}
+						} else {
+							System.out.println(ERROR_MSG_0);
+						}
+					} else {
+						System.out.println(ERROR_MSG_0);
+					}
+				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					inputDataPhase(console, f, output, phase + 1);
+				} else {
+					f.addConsideration(input);
+				}
+			}
+			keywordPhase_end(console, f, output, phase, "/finish");
+			break;
 		default:
 			break;
 		}
+	}
+	
+	public static void inputDataPhase(Scanner console, Flight f, PrintStream output) {
+		inputDataPhase(console, f, output, 0);
 	}
 }

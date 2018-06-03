@@ -54,6 +54,7 @@ public class Flight {
 
 		this.payloadMass = -1;
 		this.boosterMass = -1;
+		this.eggs = new double[1];
 		this.parachuteMass = -1;
 		this.nomex = -1;
 		this.insulation = -1;
@@ -308,7 +309,7 @@ public class Flight {
 	}
 
 	// characteristics
-	public void addcharacteristic(String s) {
+	public void addCharacteristic(String s) {
 		characteristics.add(s);
 	}
 
