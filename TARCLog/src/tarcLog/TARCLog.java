@@ -2,6 +2,7 @@ package tarcLog;
 
 import java.util.*;
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.io.*;
 
@@ -11,9 +12,8 @@ public class TARCLog {
 	private static final String ERROR_MSG_0 = "Incorrect input. Please try again.";
 	private static final String ERROR_MSG_1 = "Invalid keyword. Please try again.";
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException, ParseException {
 		Scanner console = new Scanner(System.in);
-		File inputCacheFile;
 		File outputCacheFile;
 		File outputDataSheet;
 
@@ -23,35 +23,95 @@ public class TARCLog {
 		DataSheet sheet;
 		Flight flight;
 
-		System.out.println("Welcome to TARC Log. Start off with these commands:");
-		System.out.println();
-		System.out.println("\t0:\tNew Data Sheet");
-		System.out.println("\t1:\tEdit Data Sheet");
-		System.out.println("\t2:\tDelete Data Sheet");
-		System.out.println("\t3:\tAnalyze Data Sheet (Not yet Implemented)"); // WIP
+		String[] savedFlights;
+		DataSheet[] loadedDataSheets;
 
-		switch (numberChoice(console, 3)) {
-		case 0:
-			sheet = new DataSheet();
-			flight = new Flight();
-			outputCacheFile = new File(SAVEFILES_DIR + "save_" + new SimpleDateFormat("MM.dd.yyyy").format(new Date()));
-			saveFile = new PrintStream(outputCacheFile);
-			// prompt user for input data
-			// save flight in sheet
-			// save
-			// inputDataPhase(console, flight );
-			
-			inputDataPhase(console, flight, saveFile);
-			break;
-		case 1:
+		boolean hasQuit = false;
+		boolean hasQuitDataSheet = false;
 
-			break;
-		case 2:
-			break;
-		case 3:
-			break;
+		while (!hasQuit) {
+			System.out.println("Loading flight data...");
+
+			System.out.println("Welcome to TARC Log. Start off with these commands:");
+			System.out.println();
+			System.out.println("\t0:\tNew Data Sheet");
+			System.out.println("\t1:\tEdit Data Sheet");
+			System.out.println("\t2:\tPrint Data Sheet");
+			System.out.println("\t3:\tDelete Data Sheet");
+			System.out.println("\t4:\tAnalyze Data Sheet (Not yet Implemented)"); // WIP
+			System.out.println("\t5:\tExit");
+
+			switch (numberChoice(console, 5)) {
+			case 0:
+				// make new sheet
+				// start new flight data input prompt
+				// when finished, ask to start new input prompt
+				// if no, go back
+				sheet = new DataSheet();
+				outputCacheFile = new File(
+						SAVEFILES_DIR + "save_" + new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").format(sheet.getDate()));
+				saveFile = new PrintStream(outputCacheFile);
+				while (!hasQuitDataSheet) {
+					sheet.addFlight(new Flight());
+					inputDataPhase(console, sheet, sheet.getFlightAmount() - 1, saveFile);
+					System.out.print("Enter another flight? (yes, y/no, n): ");
+					if (!yesNoChoice(console)) {
+						hasQuitDataSheet = true;
+					}
+				}
+				sheet.saveSheet(saveFile);
+				break;
+			case 1:
+				int counter = 0;
+				savedFlights = new File(SAVEFILES_DIR).list();
+				if (savedFlights.length > 0) {
+					loadedDataSheets = new DataSheet[savedFlights.length];
+					for (int i = 0; i < savedFlights.length; i++) {
+						loadedDataSheets[i] = new DataSheet();
+						loadedDataSheets[i].loadSheet(new Scanner(new File(SAVEFILES_DIR + savedFlights[i])));
+						
+					}
+					System.out.println("Type a number corresponding to a flight to start editing it:\n");
+					for (int i = 0; i < loadedDataSheets.length; i++) {
+						System.out.println(
+								"Date: " + new SimpleDateFormat("MM/dd/yyyy").format(loadedDataSheets[i].getDate()));
+						for (int j = 0; j < loadedDataSheets[i].getFlightAmount(); j++) {
+							System.out.print(counter + ": ");
+							if (loadedDataSheets[i].getFlight(j).isComplete()) {
+								System.out.println("COMPLETE");
+							} else {
+								System.out.println("INCOMPLETE");
+							}
+							counter++;
+						}
+					}
+					int choice = numberChoice(console, counter);
+
+					int i = 0;
+					while (loadedDataSheets[i].getFlightAmount() < choice) {
+						choice -= loadedDataSheets[i].getFlightAmount();
+						i++;
+					}
+					outputCacheFile = new File(SAVEFILES_DIR + "save_"
+							+ new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").format(loadedDataSheets[i].getDate()));
+					saveFile = new PrintStream(outputCacheFile);
+					inputDataPhase(console, loadedDataSheets[i], choice - 1, saveFile);
+				} else {
+					System.out.println("No saves found. Returning to main menu...");
+				}
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				break;
+			case 5:
+				System.out.println("Exiting...");
+				hasQuit = true;
+				break;
+			}
 		}
-
 		console.close();
 	}
 
@@ -164,76 +224,86 @@ public class TARCLog {
 		return result;
 	}
 
-	private static void keywordPhase_start(Scanner console, Flight f, PrintStream output, int phase, String input) {
+	private static void keywordPhase_start(Scanner console, DataSheet s, int flightNum, PrintStream output, int phase,
+			String input) {
 		if (evaluateKeyword(input) == 0)
-			inputDataPhase(console, f, output, phase + 1);
+			inputDataPhase(console, s, flightNum, output, phase + 1);
 		else if (evaluateKeyword(input) == 1) {
 			System.out.println(ERROR_MSG_1);
-			inputDataPhase(console, f, output, phase);
+			inputDataPhase(console, s, flightNum, output, phase);
 		} else if (evaluateKeyword(input) == 2) {
-			System.out.println("Saving flight...");
-			f.saveFlight(output);
-			System.out.print("Flight saved. ");
-			inputDataPhase(console, f, output, phase);
+			System.out.println("Saving sheet...");
+			s.saveSheet(output);
+			System.out.print("Sheet saved. ");
+			inputDataPhase(console, s, flightNum, output, phase);
 		} else if (evaluateKeyword(input) == 3) {
 			System.out.print("Do you want to save?: (yes, y/no, n)");
 			if (yesNoChoice(console)) {
-				System.out.println("Saving flight...");
-				f.saveFlight(output);
-				System.out.print("Flight saved. ");
-				inputDataPhase(console, f, output, -1);
+				System.out.println("Saving sheet...");
+				s.saveSheet(output);
+				System.out.print("Sheet saved. ");
+				inputDataPhase(console, s, flightNum, output, -1);
 			}
+			output.close();
 			System.out.println("Exiting...");
 		} else if (evaluateKeyword(input) == 4) {
 			// Implement help method
-			inputDataPhase(console, f, output, phase);
+			inputDataPhase(console, s, flightNum, output, phase);
 		}
 	}
 
-	private static void keywordPhase(Scanner console, Flight f, PrintStream output, int phase, String input) {
+	private static void keywordPhase(Scanner console, DataSheet s, int flightNum, PrintStream output, int phase,
+			String input) {
 		if (evaluateKeyword(input) == 0)
-			inputDataPhase(console, f, output, phase + 1);
+			inputDataPhase(console, s, flightNum, output, phase + 1);
 		else if (evaluateKeyword(input) == 1) {
-			inputDataPhase(console, f, output, phase - 1);
+			inputDataPhase(console, s, flightNum, output, phase - 1);
 		} else if (evaluateKeyword(input) == 2) {
-			f.saveFlight(output);
-			inputDataPhase(console, f, output, phase);
+			System.out.println("Saving sheet...");
+			s.saveSheet(output);
+			System.out.print("Sheet saved. ");
+			inputDataPhase(console, s, flightNum, output, phase);
 		} else if (evaluateKeyword(input) == 3) {
 			System.out.print("Do you want to save?: (yes, y/no, n)");
 			if (yesNoChoice(console)) {
-				System.out.println("Saving flight...");
-				f.saveFlight(output);
-				System.out.print("Flight saved. ");
-				inputDataPhase(console, f, output, -1);
+				System.out.println("Saving sheet...");
+				s.saveSheet(output);
+				System.out.print("Sheet saved. ");
+				inputDataPhase(console, s, flightNum, output, -1);
 			}
+			output.close();
 			System.out.println("Exiting...");
 		} else if (evaluateKeyword(input) == 4) {
 			// Implement help method
-			inputDataPhase(console, f, output, phase);
+			inputDataPhase(console, s, flightNum, output, phase);
 		}
 	}
 
-	private static void keywordPhase_end(Scanner console, Flight f, PrintStream output, int phase, String input) {
+	private static void keywordPhase_end(Scanner console, DataSheet s, int flightNum, PrintStream output, int phase,
+			String input) {
 		if (evaluateKeyword(input) == 0) {
 			System.out.println(ERROR_MSG_1);
-			inputDataPhase(console, f, output, phase);
+			inputDataPhase(console, s, flightNum, output, phase);
 		} else if (evaluateKeyword(input) == 1) {
-			inputDataPhase(console, f, output, phase - 1);
+			inputDataPhase(console, s, flightNum, output, phase - 1);
 		} else if (evaluateKeyword(input) == 2) {
-			f.saveFlight(output);
-			inputDataPhase(console, f, output, phase);
+			System.out.println("Saving sheet...");
+			s.saveSheet(output);
+			System.out.print("Sheet saved. ");
+			inputDataPhase(console, s, flightNum, output, phase);
 		} else if (evaluateKeyword(input) == 3) {
 			System.out.print("Do you want to save?: (yes, y/no, n)");
 			if (yesNoChoice(console)) {
-				System.out.println("Saving flight...");
-				f.saveFlight(output);
-				System.out.print("Flight saved. ");
-				inputDataPhase(console, f, output, -1);
+				System.out.println("Saving sheet...");
+				s.saveSheet(output);
+				System.out.print("Sheet saved. ");
+				inputDataPhase(console, s, flightNum, output, -1);
 			}
+			output.close();
 			System.out.println("Exiting...");
 		} else if (evaluateKeyword(input) == 4) {
 			// Implement help method
-			inputDataPhase(console, f, output, phase);
+			inputDataPhase(console, s, flightNum, output, phase);
 		}
 	}
 
@@ -258,216 +328,213 @@ public class TARCLog {
 		return input;
 	}
 
-	private static void inputDataPhase(Scanner console, Flight f, PrintStream output, int phase) {
+	private static void inputDataPhase(Scanner console, DataSheet s, int flightNum, PrintStream output, int phase) {
 		String input = "";
 		String[] commandParams;
 		boolean isDone = false;
 		switch (phase) {
 		case 0:
+
 			input = inputDataLoopNumber(console, "Temperature (F): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase_start(console, f, output, phase, input);
+				keywordPhase_start(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setTemperature(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setTemperature(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 1:
 			input = inputDataLoopNumber(console, "Wind Speed (MPH): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setWindSpeed(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setWindSpeed(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 2:
 			input = inputDataLoopNumber(console, "Humidity (%): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setHumidity(Double.parseDouble(input));
-				System.out.println(phase + 1);
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setHumidity(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 3:
-			System.out.println(phase);
 			input = inputDataLoopString(console, "Payload Name: ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 2) {
-				f.setPayload(input);
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setPayload(input);
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 4:
 			input = inputDataLoopString(console, "Booster Name: ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 2) {
-				f.setBooster(input);
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setBooster(input);
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 5:
 			input = inputDataLoopString(console, "Motor Name: ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 2) {
-				f.setMotor(input);
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setMotor(input);
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 6:
-			System.out.println(phase);
 			input = inputDataLoopNumber(console, "Motor Delay (s): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setDelay((int) Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setDelay((int) Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 7:
 			input = inputDataLoopString(console, "Parachute Name: ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 2) {
-				f.setParachute(input);
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setParachute(input);
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 8:
 			input = inputDataLoopNumber(console, "Payload Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setPayloadMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setPayloadMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 9:
 			input = inputDataLoopNumber(console, "Booster Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setBoosterMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setBoosterMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 10:
-			input = inputDataLoopNumber(console, "Booster Mass (g): ");
-			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
-			} else if (evaluateInput(input) == 1) {
-				f.setBoosterMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
-			}
-			break;
-		case 11:
 			String[] eggMasses;
 			boolean isValid = false;
 			while (!isValid) {
 				System.out.print("Enter egg masses (separated by space): ");
 				eggMasses = console.nextLine().split(" ");
 				isValid = true;
-				if (eggMasses.length < 1)
-					isValid = false;
-				else {
-					for (int i = 0; i < eggMasses.length; i++) {
-						if (!checkForNumber(eggMasses[i].trim())) {
-							isValid = false;
+				if (eggMasses.length > 0 && evaluateInput(eggMasses[0]) == 0) {
+					keywordPhase(console, s, flightNum, output, phase, eggMasses[0]);
+				} else {
+					if (eggMasses.length < 1)
+						isValid = false;
+					else {
+
+						for (int i = 0; i < eggMasses.length; i++) {
+							if (!checkForNumber(eggMasses[i].trim())) {
+								isValid = false;
+							}
 						}
 					}
-				}
-				if (isValid) {
-					f.setEggAmount(eggMasses.length);
-					for (int i = 0; i < eggMasses.length; i++) {
-						f.setEggMass(i, Double.parseDouble(eggMasses[i]));
+					if (isValid) {
+						s.getFlight(flightNum).setEggAmount(eggMasses.length);
+						for (int i = 0; i < eggMasses.length; i++) {
+							s.getFlight(flightNum).setEggMass(i, Double.parseDouble(eggMasses[i]));
+						}
+						inputDataPhase(console, s, flightNum, output, phase + 1);
+					} else {
+
+						System.out.println(ERROR_MSG_0);
 					}
-				} else {
-					System.out.println(ERROR_MSG_0);
 				}
+			}
+			break;
+		case 11:
+			input = inputDataLoopNumber(console, "Parachute Mass (g): ");
+			if (evaluateInput(input) == 0) {
+				keywordPhase(console, s, flightNum, output, phase, input);
+			} else if (evaluateInput(input) == 1) {
+				s.getFlight(flightNum).setParachuteMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 12:
-			input = inputDataLoopNumber(console, "Parachute Mass (g): ");
+			input = inputDataLoopNumber(console, "Nomex Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setParachuteMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setNomexMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 13:
-			input = inputDataLoopNumber(console, "Nomex Mass (g): ");
+			input = inputDataLoopNumber(console, "Insulation Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setNomexMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setInsulationMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 14:
-			input = inputDataLoopNumber(console, "Insulation Mass (g): ");
+			input = inputDataLoopNumber(console, "Casing Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setInsulationMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setCasingMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 15:
-			input = inputDataLoopNumber(console, "Casing Mass (g): ");
+			input = inputDataLoopNumber(console, "Motor Mass (g): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setCasingMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setMotorMass(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 16:
-			input = inputDataLoopNumber(console, "Motor Mass (g): ");
+			input = inputDataLoopNumber(console, "Altitude (ft): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setMotorMass(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setAltitude((int) Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 17:
-			input = inputDataLoopNumber(console, "Altitude (ft): ");
+			input = inputDataLoopNumber(console, "Time (s): ");
 			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
+				keywordPhase(console, s, flightNum, output, phase, input);
 			} else if (evaluateInput(input) == 1) {
-				f.setAltitude((int) Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
+				s.getFlight(flightNum).setTime(Double.parseDouble(input));
+				inputDataPhase(console, s, flightNum, output, phase + 1);
 			}
 			break;
 		case 18:
-			input = inputDataLoopNumber(console, "Time (s): ");
-			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
-			} else if (evaluateInput(input) == 1) {
-				f.setTime(Double.parseDouble(input));
-				inputDataPhase(console, f, output, phase + 1);
-			}
-			break;
-		case 19:
 			// keywords:
 			// /del, /d
 			System.out.println("Enter Modification notes: ");
-			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
-			
+			System.out.println(
+					"NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+
 			while (!isDone) {
 				input = console.nextLine().trim();
-			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
-			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
-					if (f.getNumModifications() > 0) {
-						for (int i = 0; i < f.getNumModifications(); i++) {
-							System.out.println(i + ": " + f.getModification(i));
+				if (evaluateInput(input) == 0) {
+					keywordPhase(console, s, flightNum, output, phase, input);
+				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (s.getFlight(flightNum).getNumModifications() > 0) {
+						for (int i = 0; i < s.getFlight(flightNum).getNumModifications(); i++) {
+							System.out.println(i + ": " + s.getFlight(flightNum).getModification(i));
 						}
 					} else {
 						System.out.println(ERROR_MSG_1);
@@ -476,10 +543,10 @@ public class TARCLog {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
-							if (Integer.parseInt(commandParams[1]) < f.getNumModifications()) {
-								f.removeModification(Integer.parseInt(commandParams[1]));
+							if (Integer.parseInt(commandParams[1]) < s.getFlight(flightNum).getNumModifications()) {
+								s.getFlight(flightNum).removeModification(Integer.parseInt(commandParams[1]));
 							} else {
-								 System.out.println(ERROR_MSG_0);
+								System.out.println(ERROR_MSG_0);
 							}
 						} else {
 							System.out.println(ERROR_MSG_0);
@@ -488,24 +555,64 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
-					inputDataPhase(console, f, output, phase + 1);
+					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
-					f.addModification(input);
+					s.getFlight(flightNum).addModification(input);
+				}
+			}
+			break;
+		case 19:
+			System.out.println("Enter Damage notes: ");
+			System.out.println(
+					"NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+
+			while (!isDone) {
+				input = console.nextLine().trim();
+				if (evaluateInput(input) == 0) {
+					keywordPhase(console, s, flightNum, output, phase, input);
+				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (s.getFlight(flightNum).getNumDamages() > 0) {
+						for (int i = 0; i < s.getFlight(flightNum).getNumDamages(); i++) {
+							System.out.println(i + ": " + s.getFlight(flightNum).getDamage(i));
+						}
+					} else {
+						System.out.println(ERROR_MSG_1);
+					}
+				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+					commandParams = input.split(" ");
+					if (commandParams.length > 1) {
+						if (checkForInteger(commandParams[1])) {
+							if (Integer.parseInt(commandParams[1]) < s.getFlight(flightNum).getNumDamages()) {
+								s.getFlight(flightNum).removeDamage(Integer.parseInt(commandParams[1]));
+							} else {
+								System.out.println(ERROR_MSG_0);
+							}
+						} else {
+							System.out.println(ERROR_MSG_0);
+						}
+					} else {
+						System.out.println(ERROR_MSG_0);
+					}
+				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					inputDataPhase(console, s, flightNum, output, phase + 1);
+				} else {
+					s.getFlight(flightNum).addDamage(input);
 				}
 			}
 			break;
 		case 20:
-			System.out.println("Enter Damage notes: ");
-			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
-			
+			System.out.println("Enter Characteristic notes: ");
+			System.out.println(
+					"NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+
 			while (!isDone) {
 				input = console.nextLine().trim();
-			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
-			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
-					if (f.getNumDamages() > 0) {
-						for (int i = 0; i < f.getNumDamages(); i++) {
-							System.out.println(i + ": " + f.getDamage(i));
+				if (evaluateInput(input) == 0) {
+					keywordPhase(console, s, flightNum, output, phase, input);
+				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (s.getFlight(flightNum).getNumCharacteristics() > 0) {
+						for (int i = 0; i < s.getFlight(flightNum).getNumCharacteristics(); i++) {
+							System.out.println(i + ": " + s.getFlight(flightNum).getCharacteristic(i));
 						}
 					} else {
 						System.out.println(ERROR_MSG_1);
@@ -514,10 +621,10 @@ public class TARCLog {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
-							if (Integer.parseInt(commandParams[1]) < f.getNumDamages()) {
-								f.removeDamage(Integer.parseInt(commandParams[1]));
+							if (Integer.parseInt(commandParams[1]) < s.getFlight(flightNum).getNumCharacteristics()) {
+								s.getFlight(flightNum).removeCharacteristic(Integer.parseInt(commandParams[1]));
 							} else {
-								 System.out.println(ERROR_MSG_0);
+								System.out.println(ERROR_MSG_0);
 							}
 						} else {
 							System.out.println(ERROR_MSG_0);
@@ -526,62 +633,25 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
-					inputDataPhase(console, f, output, phase + 1);
+					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
-					f.addDamage(input);
+					s.getFlight(flightNum).addCharacteristic(input);
 				}
 			}
 			break;
 		case 21:
-			System.out.println("Enter Characteristic notes: ");
-			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
-			
-			while (!isDone) {
-				input = console.nextLine().trim();
-			if (evaluateInput(input) == 0) {
-				keywordPhase(console, f, output, phase, input);
-			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
-					if (f.getNumCharacteristics() > 0) {
-						for (int i = 0; i < f.getNumCharacteristics(); i++) {
-							System.out.println(i + ": " + f.getCharacteristic(i));
-						}
-					} else {
-						System.out.println(ERROR_MSG_1);
-					}
-				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
-					commandParams = input.split(" ");
-					if (commandParams.length > 1) {
-						if (checkForInteger(commandParams[1])) {
-							if (Integer.parseInt(commandParams[1]) < f.getNumCharacteristics()) {
-								f.removeCharacteristic(Integer.parseInt(commandParams[1]));
-							} else {
-								 System.out.println(ERROR_MSG_0);
-							}
-						} else {
-							System.out.println(ERROR_MSG_0);
-						}
-					} else {
-						System.out.println(ERROR_MSG_0);
-					}
-				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
-					inputDataPhase(console, f, output, phase + 1);
-				} else {
-					f.addCharacteristic(input);
-				}
-			}
-			break;
-		case 22:
 			System.out.println("Enter Consideration notes: ");
-			System.out.println("NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
-			
+			System.out.println(
+					"NOTE: enter /view, /v to view past comments; enter /del <index> or /d <index> to remove a comment; enter /end, /e to stop adding messages");
+
 			while (!isDone) {
 				input = console.nextLine().trim();
-			if (evaluateInput(input) == 0) {
-				keywordPhase_end(console, f, output, phase, input);
-			} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
-					if (f.getNumConsiderations() > 0) {
-						for (int i = 0; i < f.getNumConsiderations(); i++) {
-							System.out.println(i + ": " + f.getConsideration(i));
+				if (evaluateInput(input) == 0) {
+					keywordPhase_end(console, s, flightNum, output, phase, input);
+				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
+					if (s.getFlight(flightNum).getNumConsiderations() > 0) {
+						for (int i = 0; i < s.getFlight(flightNum).getNumConsiderations(); i++) {
+							System.out.println(i + ": " + s.getFlight(flightNum).getConsideration(i));
 						}
 					} else {
 						System.out.println(ERROR_MSG_1);
@@ -590,10 +660,10 @@ public class TARCLog {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
-							if (Integer.parseInt(commandParams[1]) < f.getNumConsiderations()) {
-								f.removeConsideration(Integer.parseInt(commandParams[1]));
+							if (Integer.parseInt(commandParams[1]) < s.getFlight(flightNum).getNumConsiderations()) {
+								s.getFlight(flightNum).removeConsideration(Integer.parseInt(commandParams[1]));
 							} else {
-								 System.out.println(ERROR_MSG_0);
+								System.out.println(ERROR_MSG_0);
 							}
 						} else {
 							System.out.println(ERROR_MSG_0);
@@ -602,19 +672,19 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
-					inputDataPhase(console, f, output, phase + 1);
+					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
-					f.addConsideration(input);
+					s.getFlight(flightNum).addConsideration(input);
 				}
 			}
-			keywordPhase_end(console, f, output, phase, "/finish");
+			keywordPhase_end(console, s, flightNum, output, phase, "/finish");
 			break;
 		default:
 			break;
 		}
 	}
-	
-	public static void inputDataPhase(Scanner console, Flight f, PrintStream output) {
-		inputDataPhase(console, f, output, 0);
+
+	private static void inputDataPhase(Scanner console, DataSheet s, int flightNum, PrintStream output) {
+		inputDataPhase(console, s, flightNum, output, 0);
 	}
 }

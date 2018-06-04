@@ -2,6 +2,7 @@ package tarcLog;
 
 import java.util.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 
 public class Flight {
 	private static final double MIN_TIME = 43;
@@ -41,7 +42,6 @@ public class Flight {
 	private ArrayList<String> considerations;
 
 	public Flight() {
-		// TODO: date
 		this.temperature = -460;
 		this.windSpeed = -1;
 		this.humidity = -1;
@@ -70,7 +70,7 @@ public class Flight {
 		this.characteristics = new ArrayList<String>();
 		this.considerations = new ArrayList<String>();
 	}
-
+	
 	// temperature
 	public void setTemperature(double n) {
 		this.temperature = n;
@@ -592,6 +592,15 @@ public class Flight {
 			considerations.add(data[counter]);
 			counter++;
 		}
+	}
+	
+	public boolean equals(Flight other) {
+		return (temperature == other.temperature && windSpeed == other.windSpeed && humidity == other.humidity && payload.trim().equals(other.payload.trim())
+				&& booster.trim().equals(other.booster.trim()) && motor.trim().equals(other.motor.trim()) && motorDelay == other.motorDelay
+				&& parachute.trim().equals(other.parachute.trim()) && payloadMass == other.payloadMass && boosterMass == other.boosterMass && parachuteMass == other.parachuteMass
+				&& nomex == other.nomex && insulation == other.insulation && ballast == other.ballast && casing == other.casing && motorMass == other.motorMass && altitude == other.altitude
+				&& time == other.time && modifications.equals(other.modifications) && damages.equals(other.damages) && characteristics.equals(other.characteristics)
+				&& considerations.equals(other.considerations));
 	}
 	
 	public boolean isComplete() {

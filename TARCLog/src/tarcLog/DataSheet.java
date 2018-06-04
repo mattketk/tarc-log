@@ -13,12 +13,16 @@ public class DataSheet {
 	private static final String IND_0 = "\t";
 	private static final String IND_1 = "\t\t";
 	
-	private String date;
+	private Date date;
 	private ArrayList<Flight> flights;
 	
 	public DataSheet() {
-		this.date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
+		this.date = new Date();
 		this.flights = new ArrayList<Flight>();
+	}
+	
+	public Date getDate() {
+		return this.date;
 	}
 	
 	public void addFlight(Flight f) {
@@ -29,17 +33,25 @@ public class DataSheet {
 		return flights.remove(index);
 	}
 	
+	public Flight getFlight(int index) {
+		return flights.get(index);
+	}
+	
+	public int getFlightAmount() {
+		return flights.size();
+	}
+	
 	public void saveSheet(PrintStream output) {
-		output.println(date);
+		output.println(new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").format(date));
 		for (int i = 0; i < flights.size(); i++) {
 			flights.get(i).saveFlight(output);
 			output.println();
 		}
 	}
 	
-	public void loadSheet(Scanner cache) {
+	public void loadSheet(Scanner cache) throws ParseException {
 		Flight temp;
-		this.date = cache.nextLine();
+		this.date = new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").parse(cache.next());
 		while (!cache.hasNextLine()) {	// TODO: watch out here
 			temp = new Flight();
 			temp.loadFlight(cache);
@@ -50,7 +62,7 @@ public class DataSheet {
 	public void printSheet(PrintStream output) {
 		Flight flight;
 		
-		output.println("Date:\t" + date);
+		output.println("Date:\t" + new SimpleDateFormat("MM/dd/yyyy").format(this.date));
 		output.println();
 		
 		for (int i = 0; i < flights.size(); i++) {
