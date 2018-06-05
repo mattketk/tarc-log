@@ -51,7 +51,7 @@ public class DataSheet {
 	
 	public void loadSheet(Scanner cache) throws ParseException {
 		Flight temp;
-		this.date = new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").parse(cache.next());
+		this.date = new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").parse(cache.nextLine());
 		while (!cache.hasNextLine()) {	// TODO: watch out here
 			temp = new Flight();
 			temp.loadFlight(cache);

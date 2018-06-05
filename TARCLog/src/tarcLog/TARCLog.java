@@ -14,6 +14,7 @@ public class TARCLog {
 
 	public static void main(String[] args) throws FileNotFoundException, ParseException {
 		Scanner console = new Scanner(System.in);
+		Scanner reader;
 		File outputCacheFile;
 		File outputDataSheet;
 
@@ -30,8 +31,6 @@ public class TARCLog {
 		boolean hasQuitDataSheet = false;
 
 		while (!hasQuit) {
-			System.out.println("Loading flight data...");
-
 			System.out.println("Welcome to TARC Log. Start off with these commands:");
 			System.out.println();
 			System.out.println("\t0:\tNew Data Sheet");
@@ -43,6 +42,7 @@ public class TARCLog {
 
 			switch (numberChoice(console, 5)) {
 			case 0:
+				hasQuitDataSheet = false;
 				// make new sheet
 				// start new flight data input prompt
 				// when finished, ask to start new input prompt
@@ -59,7 +59,17 @@ public class TARCLog {
 						hasQuitDataSheet = true;
 					}
 				}
-				sheet.saveSheet(saveFile);
+				saveFile.close();
+				reader = new Scanner(outputCacheFile);
+				if (reader.hasNextLine()) {
+					sheet.saveSheet(saveFile);
+					reader.close();
+				} else {
+					reader.close();
+					// System.out.println("Deleting " + outputCacheFile.getName());
+					outputCacheFile.delete();
+				}
+
 				break;
 			case 1:
 				int counter = 0;
@@ -68,8 +78,9 @@ public class TARCLog {
 					loadedDataSheets = new DataSheet[savedFlights.length];
 					for (int i = 0; i < savedFlights.length; i++) {
 						loadedDataSheets[i] = new DataSheet();
-						loadedDataSheets[i].loadSheet(new Scanner(new File(SAVEFILES_DIR + savedFlights[i])));
-						
+						reader = new Scanner(new File(SAVEFILES_DIR + savedFlights[i]));
+						loadedDataSheets[i].loadSheet(reader);
+						reader.close();
 					}
 					System.out.println("Type a number corresponding to a flight to start editing it:\n");
 					for (int i = 0; i < loadedDataSheets.length; i++) {
@@ -108,6 +119,15 @@ public class TARCLog {
 				break;
 			case 5:
 				System.out.println("Exiting...");
+				savedFlights = new File(SAVEFILES_DIR).list();
+				for (int i = 0; i < savedFlights.length; i++) {
+					outputCacheFile = new File(SAVEFILES_DIR + savedFlights[i]);
+					reader = new Scanner(outputCacheFile);
+					if (reader.hasNextLine()) {
+						reader.close();
+						outputCacheFile.delete();
+					}
+				}
 				hasQuit = true;
 				break;
 			}
@@ -270,6 +290,8 @@ public class TARCLog {
 				s.saveSheet(output);
 				System.out.print("Sheet saved. ");
 				inputDataPhase(console, s, flightNum, output, -1);
+			} else {
+
 			}
 			output.close();
 			System.out.println("Exiting...");
@@ -677,7 +699,7 @@ public class TARCLog {
 					s.getFlight(flightNum).addConsideration(input);
 				}
 			}
-			keywordPhase_end(console, s, flightNum, output, phase, "/finish");
+			keywordPhase_end(console, s, flightNum, output, phase, "/f");
 			break;
 		default:
 			break;
