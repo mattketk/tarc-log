@@ -138,7 +138,7 @@ public class TARCLog {
 			}
 		}
 		console.close();
-	
+
 	}
 
 	private static boolean checkForNumber(String input) {
@@ -566,7 +566,7 @@ public class TARCLog {
 					} else {
 						System.out.println(ERROR_MSG_1);
 					}
-				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+				} else if (input.contains("/del") || input.contains("/d")) {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
@@ -607,7 +607,7 @@ public class TARCLog {
 					} else {
 						System.out.println(ERROR_MSG_1);
 					}
-				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+				} else if (input.contains("/del") || input.contains("/d")) {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
@@ -648,7 +648,7 @@ public class TARCLog {
 					} else {
 						System.out.println(ERROR_MSG_1);
 					}
-				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+				} else if (input.contains("/del") || input.contains("/d")) {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
@@ -689,7 +689,7 @@ public class TARCLog {
 					} else {
 						System.out.println(ERROR_MSG_1);
 					}
-				} else if (input.equalsIgnoreCase("/del") || input.equalsIgnoreCase("/d")) {
+				} else if (input.contains("/del") || input.contains("/d")) {
 					commandParams = input.split(" ");
 					if (commandParams.length > 1) {
 						if (checkForInteger(commandParams[1])) {
