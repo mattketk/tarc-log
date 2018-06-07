@@ -66,8 +66,8 @@ public class TARCLog {
 					reader.close();
 				} else {
 					reader.close();
-					// System.out.println("Deleting " + outputCacheFile.getName());
-					outputCacheFile.delete();
+					System.out.println("Deleting " + outputCacheFile.getName());
+					System.out.println(outputCacheFile.delete());
 				}
 
 				break;
@@ -119,13 +119,18 @@ public class TARCLog {
 				break;
 			case 5:
 				System.out.println("Exiting...");
-				savedFlights = new File(SAVEFILES_DIR).list();
+				savedFlights = (new File(SAVEFILES_DIR)).list();
 				for (int i = 0; i < savedFlights.length; i++) {
 					outputCacheFile = new File(SAVEFILES_DIR + savedFlights[i]);
 					reader = new Scanner(outputCacheFile);
-					if (reader.hasNextLine()) {
+					if (!reader.hasNext()) {
 						reader.close();
-						outputCacheFile.delete();
+						System.out.println("hello");
+						try {
+							outputCacheFile.deleteOnExit();
+						} catch (Exception e) {
+							System.out.println("Failed to delete: " + e);
+						}
 					}
 				}
 				hasQuit = true;
@@ -133,6 +138,7 @@ public class TARCLog {
 			}
 		}
 		console.close();
+	
 	}
 
 	private static boolean checkForNumber(String input) {
@@ -290,8 +296,6 @@ public class TARCLog {
 				s.saveSheet(output);
 				System.out.print("Sheet saved. ");
 				inputDataPhase(console, s, flightNum, output, -1);
-			} else {
-
 			}
 			output.close();
 			System.out.println("Exiting...");
@@ -552,6 +556,7 @@ public class TARCLog {
 			while (!isDone) {
 				input = console.nextLine().trim();
 				if (evaluateInput(input) == 0) {
+					isDone = true;
 					keywordPhase(console, s, flightNum, output, phase, input);
 				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
 					if (s.getFlight(flightNum).getNumModifications() > 0) {
@@ -577,6 +582,7 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					isDone = true;
 					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
 					s.getFlight(flightNum).addModification(input);
@@ -591,6 +597,7 @@ public class TARCLog {
 			while (!isDone) {
 				input = console.nextLine().trim();
 				if (evaluateInput(input) == 0) {
+					isDone = true;
 					keywordPhase(console, s, flightNum, output, phase, input);
 				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
 					if (s.getFlight(flightNum).getNumDamages() > 0) {
@@ -616,6 +623,7 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					isDone = true;
 					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
 					s.getFlight(flightNum).addDamage(input);
@@ -630,6 +638,7 @@ public class TARCLog {
 			while (!isDone) {
 				input = console.nextLine().trim();
 				if (evaluateInput(input) == 0) {
+					isDone = true;
 					keywordPhase(console, s, flightNum, output, phase, input);
 				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
 					if (s.getFlight(flightNum).getNumCharacteristics() > 0) {
@@ -655,6 +664,7 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
+					isDone = true;
 					inputDataPhase(console, s, flightNum, output, phase + 1);
 				} else {
 					s.getFlight(flightNum).addCharacteristic(input);
@@ -669,6 +679,7 @@ public class TARCLog {
 			while (!isDone) {
 				input = console.nextLine().trim();
 				if (evaluateInput(input) == 0) {
+					isDone = true;
 					keywordPhase_end(console, s, flightNum, output, phase, input);
 				} else if (input.equalsIgnoreCase("/view") || input.equalsIgnoreCase("/v")) {
 					if (s.getFlight(flightNum).getNumConsiderations() > 0) {
@@ -694,12 +705,12 @@ public class TARCLog {
 						System.out.println(ERROR_MSG_0);
 					}
 				} else if (input.equalsIgnoreCase("/end") || input.equalsIgnoreCase("/e")) {
-					inputDataPhase(console, s, flightNum, output, phase + 1);
+					isDone = true;
+					keywordPhase(console, s, flightNum, output, phase, "/finish");
 				} else {
 					s.getFlight(flightNum).addConsideration(input);
 				}
 			}
-			keywordPhase_end(console, s, flightNum, output, phase, "/f");
 			break;
 		default:
 			break;
