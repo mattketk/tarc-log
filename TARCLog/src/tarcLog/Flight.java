@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 
-public class Flight {
+public class Flight implements Serializable {
 	private static final double MIN_TIME = 43;
 	private static final double MAX_TIME = 46;
 	
@@ -62,8 +62,8 @@ public class Flight {
 		this.casing = -1;
 		this.motorMass = -1;
 
-		this.altitude = 0;
-		this.time = 0;
+		this.altitude = -1;
+		this.time = -1;
 
 		this.modifications = new ArrayList<String>();
 		this.damages = new ArrayList<String>();
@@ -415,185 +415,6 @@ public class Flight {
 		return mass;
 	}
 	
-	public void saveFlight(PrintStream output) {
-		output.print(temperature + "\t");
-		output.print(windSpeed + "\t");
-		output.print(humidity + "\t");
-		output.print(payload + "\t");
-		output.print(booster + "\t");
-		output.print(motor + "\t");
-		output.print(motorDelay + "\t");
-		output.print(parachute + "\t");
-		output.print(payloadMass + "\t");
-		output.print(boosterMass + "\t");
-		
-		// eggs
-		for (int i = 0; i < eggs.length; i++) {
-			output.print(eggs[i] + "\t");
-		}
-		output.print("_endeggs\t");
-		
-		output.print(parachuteMass + "\t");
-		output.print(nomex + "\t");
-		output.print(insulation + "\t");
-		output.print(ballast + "\t");
-		output.print(casing + "\t");
-		output.print(motorMass + "\t");
-		output.print(altitude + "\t");
-		output.print(time + "\t");
-		
-		for (int i = 0; i < modifications.size(); i++) {
-			output.print(modifications.get(i) + "\t");
-		}
-		output.print("_endmodifications\t");
-		
-		for (int i = 0; i < damages.size(); i++) {
-			output.print(damages.get(i) + "\t");
-		}
-		output.print("_enddamages\t");
-		
-		for (int i = 0; i < characteristics.size(); i++) {
-			output.print(characteristics.get(i) + "\t");
-		}
-		output.print("_endcharacteristics\t");
-		
-		for (int i = 0; i < considerations.size(); i++) {
-			output.print(considerations.get(i) + "\t");
-		}
-		output.print("_endconsiderations");
-	}
-	
-	/*
-	public void loadFlight(Scanner cache) {
-		String comparer = "";
-		ArrayList<Double> eggTemp = new ArrayList<Double>();
-		
-		
-		temperature = Double.parseDouble(cache.next());
-		windSpeed = Double.parseDouble(cache.next());
-		humidity = Double.parseDouble(cache.next());
-		payload = cache.next();
-		booster = cache.next();
-		motor = cache.next();
-		motorDelay = (int) (Double.parseDouble(cache.next()));
-		parachute = cache.next();
-		payloadMass = Double.parseDouble(cache.next());
-		boosterMass = Double.parseDouble(cache.next());
-		
-		// eggs
-		while (!comparer.equals("_endeggs")) {
-			comparer = cache.next();
-			if (!comparer.equals("_endeggs")) {
-				eggTemp.add(Double.parseDouble(comparer));
-			}
-		}
-		eggs = new double[eggTemp.size()]; 
-		for (int i = 0; i < eggTemp.size(); i++) {
-			eggs[i] = eggTemp.get(i);
-		}
-		
-		parachuteMass = Double.parseDouble(cache.next());
-		nomex = Double.parseDouble(cache.next());
-		insulation = Double.parseDouble(cache.next());
-		ballast = Double.parseDouble(cache.next());
-		casing = Double.parseDouble(cache.next());
-		motorMass = Double.parseDouble(cache.next());
-		altitude = Integer.parseInt(cache.next());
-		time = Double.parseDouble(cache.next());
-		
-		while (!comparer.equals("_endmodifications")) {
-			comparer = cache.next();
-			if (!comparer.equals("_endmodifications"))
-				modifications.add(comparer);
-		}
-		
-		while (!comparer.equals("_enddamages")) {
-			comparer = cache.next();
-			if (!comparer.equals("_enddamages"))
-				damages.add(comparer);
-		}
-		
-		while (!comparer.equals("_endcharacteristics")) {
-			comparer = cache.next();
-			if (!comparer.equals("_endcharacteristics"))
-				characteristics.add(comparer);
-		}
-		
-		while (!comparer.equals("_endconsiderations")) {
-			comparer = cache.next();
-			if (!comparer.equals("_endconsiderations"))
-				considerations.add(comparer);
-		}
-	} 
-	*/
-	
-	public void loadFlight(Scanner cache) {
-		int counter = 0;
-		String[] data = cache.nextLine().split("\t");
-		ArrayList<Double> eggTemp = new ArrayList<Double>();
-		
-		temperature = Double.parseDouble(data[counter]);
-		counter++;
-		windSpeed = Double.parseDouble(data[counter]);
-		counter++;
-		humidity = Double.parseDouble(data[counter]);
-		counter++;
-		payload = data[counter];
-		counter++;
-		booster = data[counter];
-		counter++;
-		motor = data[counter];
-		counter++;
-		motorDelay = (int) (Double.parseDouble(data[counter]));
-		counter++;
-		parachute = data[counter];
-		counter++;
-		
-		while (!data[counter].equals("_endeggs")) {
-			eggTemp.add(Double.parseDouble(data[counter]));
-			counter++;
-		}
-		eggs = new double[eggTemp.size()];
-		for (int i = 0; i < eggTemp.size(); i++) {
-			eggs[i] = eggTemp.get(i);
-		}
-		counter++;
-		
-		parachuteMass = Double.parseDouble(data[counter]);
-		counter++;
-		nomex = Double.parseDouble(data[counter]);
-		counter++;
-		insulation = Double.parseDouble(data[counter]);
-		counter++;
-		ballast = Double.parseDouble(data[counter]);
-		counter++;
-		casing = Double.parseDouble(data[counter]);
-		counter++;
-		motorMass = Double.parseDouble(data[counter]);
-		counter++;
-		altitude = Integer.parseInt(data[counter]);
-		counter++;
-		time = Double.parseDouble(data[counter]); // SEE saveFlight method
-		counter++;
-		
-		while (!data[counter].equals("_endmodifications")) {
-			modifications.add(data[counter]);
-			counter++;
-		}
-		while (!data[counter].equals("_enddamages")) {
-			damages.add(data[counter]);
-			counter++;
-		}
-		while (!data[counter].equals("_endcharacteristics")) {
-			characteristics.add(data[counter]);
-			counter++;
-		}
-		while (!data[counter].equals("_endconsiderations")) {
-			considerations.add(data[counter]);
-			counter++;
-		}
-	}
-	
 	public boolean equals(Flight other) {
 		return (temperature == other.temperature && windSpeed == other.windSpeed && humidity == other.humidity && payload.trim().equals(other.payload.trim())
 				&& booster.trim().equals(other.booster.trim()) && motor.trim().equals(other.motor.trim()) && motorDelay == other.motorDelay
@@ -606,9 +427,9 @@ public class Flight {
 	public boolean isComplete() {
 		return (temperature > -460 && windSpeed > -1 && humidity > -1 && !payload.trim().equals("")
 				&& !booster.trim().equals("") && !motor.trim().equals("") && motorDelay > -1
-				&& !parachute.trim().equals("") && payloadMass > -1 && boosterMass > -1 && parachuteMass > -1
-				&& nomex > -1 && insulation > -1 && ballast > -1 && casing > -1 && motorMass > -1 && altitude > 0
-				&& time > 0 && modifications.size() > 0 && damages.size() > 0 && characteristics.size() > 0
+				&& !parachute.trim().equals("") && payloadMass > -1 && boosterMass > -1 && eggs[0] > 0 && parachuteMass > -1
+				&& nomex > -1 && insulation > -1 && ballast > -1 && casing > -1 && motorMass > -1 && altitude > -1
+				&& time > -1 && modifications.size() > 0 && damages.size() > 0 && characteristics.size() > 0
 				&& considerations.size() > 0);
 	}
 }

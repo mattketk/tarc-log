@@ -9,7 +9,7 @@ import java.io.*;
  *
  */
 
-public class DataSheet {
+public class DataSheet implements Serializable {
 	private static final String IND_0 = "\t";
 	private static final String IND_1 = "\t\t";
 	
@@ -39,24 +39,6 @@ public class DataSheet {
 	
 	public int getFlightAmount() {
 		return flights.size();
-	}
-	
-	public void saveSheet(PrintStream output) {
-		output.println(new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").format(date));
-		for (int i = 0; i < flights.size(); i++) {
-			flights.get(i).saveFlight(output);
-			output.println();
-		}
-	}
-	
-	public void loadSheet(Scanner cache) throws ParseException {
-		Flight temp;
-		this.date = new SimpleDateFormat("MM.dd.yyyy_HH.mm.ss").parse(cache.nextLine());
-		while (!cache.hasNextLine()) {	// TODO: watch out here
-			temp = new Flight();
-			temp.loadFlight(cache);
-			flights.add(temp);
-		}
 	}
 	
 	public void printSheet(PrintStream output) {
