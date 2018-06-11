@@ -88,7 +88,7 @@ public class TARCLog {
 						
 						int i = 0;
 						while (!hasChosen) {
-							userInput = inputNumber(console, "Type a number corresponding to a flight to start editing it: ");
+							userInput = inputNumber(console, "Type a number corresponding to a flight to start editing it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
 								case -1: 
 									int choice = (int) Double.parseDouble(userInput);
@@ -134,7 +134,7 @@ public class TARCLog {
 						
 		
 						while (!hasChosen) {
-							userInput = inputNumber(console, "Type a number corresponding to a data sheet to print it: ");
+							userInput = inputNumber(console, "Type a number corresponding to a data sheet to print it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
 								case -1: 
 									int choice = (int) Double.parseDouble(userInput);
@@ -193,7 +193,7 @@ public class TARCLog {
 						
 						int i = 0;
 						while (!hasChosen) {
-							userInput = inputNumber(console, "Type a number corresponding to a flight to delete it: ");
+							userInput = inputNumber(console, "Type a number corresponding to a flight to delete  (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
 								case -1: 
 									int choice = (int) Double.parseDouble(userInput);
