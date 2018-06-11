@@ -83,22 +83,27 @@ public class TARCLog {
 							}
 							System.out.println();
 						}
+						System.out.println(counter);
 						String userInput;
 						boolean hasChosen = false;
 						
-						int i = 0;
+						
 						while (!hasChosen) {
 							userInput = inputNumber(console, "Type a number corresponding to a flight to start editing it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
 								case -1: 
 									int choice = (int) Double.parseDouble(userInput);
-									if (!(choice < 0 || choice >= counter)) {
+									if (choice >= 0 && choice < counter) {
 										hasChosen = true;
-										while (loadedDataSheets[i].getFlightAmount() < choice) {
+										int i = 0;
+										while (choice >= loadedDataSheets[i].getFlightAmount()) {
 											choice -= loadedDataSheets[i].getFlightAmount();
 											i++;
 										}
-										inputDataPhase(console, loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]), choice, true);
+										inputDataPhase(console, loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]), 
+												loadedDataSheets[i].getFlightAmount() - (1 + choice), true);
+									} else {
+										System.out.println(ERROR_MSG_0);
 									}
 									break;
 								case 0:
@@ -203,7 +208,7 @@ public class TARCLog {
 											choice -= loadedDataSheets[i].getFlightAmount();
 											i++;
 										}
-										loadedDataSheets[i].removeFlight(choice);
+										loadedDataSheets[i].removeFlight(loadedDataSheets[i].getFlightAmount() - (1 + choice));
 										saveSheet(loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]));
 										if (loadedDataSheets[i].getFlightAmount() < 1) {
 											(new File(SAVEFILES_DIR + saveFilesList[i])).delete();
