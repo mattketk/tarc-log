@@ -1,5 +1,5 @@
 # tarc-log
-
+(6/10/18): Open Beta Stage yeet
 # Keywords
 /p, /pass: moves on to the next 'step'
 /b, /back: moves back to the previous field
