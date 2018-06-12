@@ -401,7 +401,7 @@ public class TARCLog {
 		boolean hasSaved = false;
 		int phase = 0;
 		Flight flight = sheet.getFlight(flightNum);
-		while (phase >= -1 && phase <= 21) {
+		while (phase >= -1 && phase <= 22) {
 			switch (phase) {
 				case 0:
 					if (showPrevData)
