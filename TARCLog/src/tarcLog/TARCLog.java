@@ -83,22 +83,39 @@ public class TARCLog {
 							}
 							System.out.println();
 						}
+						System.out.println(counter);
 						String userInput;
 						boolean hasChosen = false;
 						
-						int i = 0;
+						
 						while (!hasChosen) {
 							userInput = inputNumber(console, "Type a number corresponding to a flight to start editing it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
 								case -1: 
 									int choice = (int) Double.parseDouble(userInput);
-									if (!(choice < 0 || choice >= counter)) {
+									if (choice >= 0 && choice < counter) {
 										hasChosen = true;
-										while (loadedDataSheets[i].getFlightAmount() < choice) {
+										int i = 0;
+										while (choice >= loadedDataSheets[i].getFlightAmount()) {
 											choice -= loadedDataSheets[i].getFlightAmount();
 											i++;
 										}
-										inputDataPhase(console, loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]), choice, true);
+										inputDataPhase(console, loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]), 
+												loadedDataSheets[i].getFlightAmount() - (1 + choice), true);
+										hasQuitDataInput = false;
+										while (!hasQuitDataInput) {
+											System.out.println("Do you want to add another flight? (yes, y/no, n): ");
+											if (yesNoChoice(console)) {
+												loadedDataSheets[i].addFlight(new Flight());
+												inputDataPhase(console, loadedDataSheets[i], SAVEFILES_DIR + saveFilesList[i], 
+														loadedDataSheets[i].getFlightAmount() - (1 + choice), false);
+											} else {
+												hasQuitDataInput = true;
+											}
+										}
+										hasQuitDataInput = false;
+									} else {
+										System.out.println(ERROR_MSG_0);
 									}
 									break;
 								case 0:
@@ -132,7 +149,7 @@ public class TARCLog {
 						String userInput;
 						boolean hasChosen = false;
 						
-		
+						hasChosen = false;
 						while (!hasChosen) {
 							userInput = inputNumber(console, "Type a number corresponding to a data sheet to print it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
@@ -157,6 +174,7 @@ public class TARCLog {
 									break;
 							}
 						}
+						hasChosen = false;
 					} else {
 						System.out.println("No saves found. Returning to main menu...");
 					}
@@ -203,7 +221,7 @@ public class TARCLog {
 											choice -= loadedDataSheets[i].getFlightAmount();
 											i++;
 										}
-										loadedDataSheets[i].removeFlight(choice);
+										loadedDataSheets[i].removeFlight(loadedDataSheets[i].getFlightAmount() - (1 + choice));
 										saveSheet(loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]));
 										if (loadedDataSheets[i].getFlightAmount() < 1) {
 											(new File(SAVEFILES_DIR + saveFilesList[i])).delete();
@@ -384,6 +402,15 @@ public class TARCLog {
 				break;
 			case 4:
 				// TODO: implement help
+				String ind = "\t";
+				System.out.println();
+				System.out.println("Keywords:");
+				System.out.println(ind + "/pass, /p:\tSkips the current field to the next one.");
+				System.out.println(ind + "/back, /b:\tGoes back to the previous field.");
+				System.out.println(ind + "/save, /s:\tSaves the flight onto the data sheet.");
+				System.out.println(ind + "/finish, /f:\tSkips the whole flight input and asks to save or not.");
+				System.out.println(ind + "/help, /h:\tBrings up this dialog.");
+				System.out.println();
 				break;
 		}
 		return phase;
@@ -396,7 +423,7 @@ public class TARCLog {
 		boolean hasSaved = false;
 		int phase = 0;
 		Flight flight = sheet.getFlight(flightNum);
-		while (phase >= -1 && phase <= 21) {
+		while (phase >= -1 && phase <= 22) {
 			switch (phase) {
 				case 0:
 					if (showPrevData)
@@ -409,6 +436,7 @@ public class TARCLog {
 						flight.setTemperature(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 1:
 					if (showPrevData)
@@ -421,6 +449,7 @@ public class TARCLog {
 						flight.setWindSpeed(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 2:
 					if (showPrevData)
@@ -433,6 +462,7 @@ public class TARCLog {
 						flight.setHumidity(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 3:
 					if (showPrevData)
@@ -445,6 +475,7 @@ public class TARCLog {
 						flight.setPayload(userInput);
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 4:
 					if (showPrevData)
@@ -457,6 +488,7 @@ public class TARCLog {
 						flight.setBooster(userInput);
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 5:
 					if (showPrevData)
@@ -469,6 +501,7 @@ public class TARCLog {
 						flight.setMotor(userInput);
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 6:
 					if (showPrevData)
@@ -481,6 +514,7 @@ public class TARCLog {
 						flight.setDelay((int) Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 7:
 					if (showPrevData)
@@ -493,6 +527,7 @@ public class TARCLog {
 						flight.setParachute(userInput);
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 8:
 					if (showPrevData)
@@ -505,6 +540,7 @@ public class TARCLog {
 						flight.setPayloadMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 9:
 					if (showPrevData)
@@ -517,6 +553,7 @@ public class TARCLog {
 						flight.setBoosterMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 10:
 					while (!isDone) {
@@ -558,6 +595,7 @@ public class TARCLog {
 						}
 					}
 					isDone = false;
+					System.out.println();
 					break;
 				case 11:
 					if (showPrevData)
@@ -570,6 +608,7 @@ public class TARCLog {
 						flight.setParachuteMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 12:
 					if (showPrevData)
@@ -582,6 +621,7 @@ public class TARCLog {
 						flight.setNomexMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 13:
 					if (showPrevData)
@@ -594,6 +634,7 @@ public class TARCLog {
 						flight.setInsulationMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 14:
 					if (showPrevData)
@@ -606,6 +647,7 @@ public class TARCLog {
 						flight.setBallastMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 15:
 					if (showPrevData)
@@ -618,6 +660,7 @@ public class TARCLog {
 						flight.setCasingMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 16:
 					if (showPrevData)
@@ -630,6 +673,7 @@ public class TARCLog {
 						flight.setMotorMass(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 17:
 					if (showPrevData)
@@ -642,6 +686,7 @@ public class TARCLog {
 						flight.setAltitude((int) Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 18:
 					if (showPrevData)
@@ -654,6 +699,7 @@ public class TARCLog {
 						flight.setTime(Double.parseDouble(userInput));
 						phase++;
 					}
+					System.out.println();
 					break;
 				case 19:
 					isDone = false;
@@ -707,6 +753,7 @@ public class TARCLog {
 						}
 					}
 					isDone = false;
+					System.out.println();
 					break;
 				case 20:
 					isDone = false;
@@ -760,6 +807,7 @@ public class TARCLog {
 						}
 					}
 					isDone = false;
+					System.out.println();
 					break;
 				case 21:
 					isDone = false;
@@ -813,6 +861,7 @@ public class TARCLog {
 						}
 					}
 					isDone = false;
+					System.out.println();
 					break;
 				case 22:
 					isDone = false;
@@ -866,6 +915,7 @@ public class TARCLog {
 						}
 					}
 					isDone = false;
+					System.out.println();
 					break;
 				default:
 					System.out.print("Do you want to save? (yes, y/no, n): ");
@@ -876,6 +926,7 @@ public class TARCLog {
 					}
 					System.out.println("Exiting...");
 					phase = -2;
+					System.out.println();
 					break;
 			}
 		}
