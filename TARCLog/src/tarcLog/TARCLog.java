@@ -102,6 +102,18 @@ public class TARCLog {
 										}
 										inputDataPhase(console, loadedDataSheets[i], (SAVEFILES_DIR + saveFilesList[i]), 
 												loadedDataSheets[i].getFlightAmount() - (1 + choice), true);
+										hasQuitDataInput = false;
+										while (!hasQuitDataInput) {
+											System.out.println("Do you want to add another flight? (yes, y/no, n): ");
+											if (yesNoChoice(console)) {
+												loadedDataSheets[i].addFlight(new Flight());
+												inputDataPhase(console, loadedDataSheets[i], SAVEFILES_DIR + saveFilesList[i], 
+														loadedDataSheets[i].getFlightAmount() - (1 + choice), false);
+											} else {
+												hasQuitDataInput = true;
+											}
+										}
+										hasQuitDataInput = false;
 									} else {
 										System.out.println(ERROR_MSG_0);
 									}
@@ -137,7 +149,7 @@ public class TARCLog {
 						String userInput;
 						boolean hasChosen = false;
 						
-		
+						hasChosen = false;
 						while (!hasChosen) {
 							userInput = inputNumber(console, "Type a number corresponding to a data sheet to print it (/p to exit): ");
 							switch (evaluateKeyword(userInput)) {
@@ -162,6 +174,7 @@ public class TARCLog {
 									break;
 							}
 						}
+						hasChosen = false;
 					} else {
 						System.out.println("No saves found. Returning to main menu...");
 					}

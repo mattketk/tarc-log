@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 public class Flight implements Serializable {
 	private static final double MIN_TIME = 43;
 	private static final double MAX_TIME = 46;
+	private static final double GOAL_ALTITUDE = 856;
 	
 	// weather
 	private double temperature;
@@ -361,11 +362,11 @@ public class Flight implements Serializable {
 	public double getScore() {
 		double score = -1;
 		if (altitude > 0 && time > 0) {
-			score = this.altitude;
+			score = GOAL_ALTITUDE - this.altitude;
 			if (time < MIN_TIME) {
-				score += (MIN_TIME - time);
+				score += 4 * (MIN_TIME - time);
 			} else if (time > MAX_TIME) {
-				score += (time - MAX_TIME);
+				score += 4 * (time - MAX_TIME);
 			}
 		}
 		return score;
