@@ -105,28 +105,28 @@ public class DataSheet implements Serializable {
 			
 			// modifications
 			output.println(IND_1 + "Modifications:");
-			for (int j = 0; i < flight.getNumModifications(); i++) {
+			for (int j = 0; j < flight.getNumModifications(); j++) {
 				output.println(IND_1 + "-\t" + flight.getModification(j));
 			}
 			output.println();
 			
 			// damages
 			output.println(IND_1 + "Damages:");
-			for (int j = 0; i < flight.getNumDamages(); i++) {
+			for (int j = 0; j < flight.getNumDamages(); j++) {
 				output.println(IND_1 + "-\t" + flight.getDamage(j));
 			}
 			output.println();
 			
 			// characteristics
 			output.println(IND_1 + "Characteristics:");
-			for (int j = 0; i < flight.getNumCharacteristics(); i++) {
+			for (int j = 0; j < flight.getNumCharacteristics(); j++) {
 				output.println(IND_1 + "-\t" + flight.getCharacteristic(j));
 			}
 			output.println();
 			
 			// considerations
 			output.println(IND_1 + "Considerations:");
-			for (int j = 0; i < flight.getNumConsiderations(); i++) {
+			for (int j = 0; j < flight.getNumConsiderations(); j++) {
 				output.println(IND_1 + "-\t" + flight.getConsideration(j));
 			}
 			output.println("\n");
